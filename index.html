@@ -46,11 +46,14 @@
   .google-btn:hover{background:#f5f5f5;border-color:#bbb;}
   .google-icon{width:20px;height:20px;}
 
-  .btn-salvar-todos{width:100%;background:var(--green);color:white;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;margin-bottom:12px;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-salvar-todos{width:100%;background:var(--green);color:white;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
   .btn-salvar-todos:hover{background:var(--green-dark);}
   .btn-salvar-todos:active{transform:scale(0.98);}
   .btn-salvar-todos.saving{background:#aaa;pointer-events:none;}
   .btn-salvar-todos.done{background:var(--green-dark);}
+  .salvar-todos-sticky{position:fixed;bottom:0;left:0;right:0;padding:12px 16px;background:white;border-top:1px solid var(--border);box-shadow:0 -4px 16px rgba(0,0,0,0.08);z-index:90;display:none;}
+  .salvar-todos-sticky.visible{display:block;}
+  .salvar-todos-sticky .inner{max-width:480px;margin:0 auto;}
 
   /* VIEW TOGGLE */
   .view-toggle{display:flex;background:white;border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:14px;}
@@ -69,13 +72,18 @@
   .jogo-hora-tz{font-size:11px;color:rgba(255,255,255,0.9);font-weight:600;flex-shrink:0;white-space:nowrap;}
   .jogo-body{padding:14px;display:flex;align-items:center;gap:10px;}
   .jogo-time{flex:1;text-align:center;}
-  .jogo-flag{font-size:28px;display:block;margin-bottom:4px;}
+  .jogo-flag{font-size:32px;display:block;margin-bottom:4px;line-height:1;}
   .jogo-pais{font-weight:600;font-size:13px;}
   .jogo-placar{display:flex;align-items:center;gap:8px;flex-shrink:0;}
   .placar-input{width:44px;height:44px;border:2px solid var(--border);border-radius:8px;text-align:center;font-size:20px;font-family:'Bebas Neue',sans-serif;color:var(--text);background:var(--bg);outline:none;transition:all 0.2s;}
   .placar-input:focus{border-color:var(--green);background:white;}
   .placar-sep{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--muted);}
-  .placar-real{width:44px;height:44px;border-radius:8px;text-align:center;font-size:22px;font-family:'Bebas Neue',sans-serif;background:#f0f0ea;display:flex;align-items:center;justify-content:center;}
+  .jogo-card.brasil-card{background:#F0FAF4;border-color:var(--green);border-width:2px;}
+  .jogo-card.brasil-card .jogo-header{background:var(--green-dark);}
+  .jogo-card.finalizado{background:#F5F5F2;}
+  .jogo-card.finalizado .jogo-body{background:#EFEFEB;}
+  .jogo-card.bloqueado{background:#F7F7F4;border-color:#D0D0C8;}
+  .jogo-pais.brasil-bold{font-weight:800;text-transform:uppercase;color:var(--green-dark);}
   .placar-locked{background:#f5e6e6;color:var(--red);font-size:18px;}
 
   /* JOGO BLOQUEADO / ENCERRADO */
@@ -221,6 +229,26 @@
   .login-toggle a{color:var(--green);font-weight:600;cursor:pointer;text-decoration:none;}
   .login-error{font-size:12px;color:var(--red);margin:-6px 0 8px;text-align:left;display:none;}
   .login-error.show{display:block;}
+  /* CLASSIFICAÇÃO */
+  .classif-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px;}
+  .classif-table th{background:var(--green);color:white;padding:5px 6px;text-align:center;font-weight:600;font-size:11px;}
+  .classif-table th:first-child{text-align:left;padding-left:8px;}
+  .classif-table td{padding:6px;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle;}
+  .classif-table td:first-child{text-align:left;padding-left:8px;}
+  .classif-table tr:last-child td{border-bottom:none;}
+  .classif-table tr.qualificado td{background:#F0FAF4;}
+  .classif-table tr.brasil-row td{background:#E8F5EE;font-weight:700;}
+  .classif-pos{font-weight:700;color:var(--muted);font-size:11px;margin-right:4px;}
+  .classif-crest{width:16px;height:16px;object-fit:contain;vertical-align:middle;margin-right:4px;}
+  .art-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+  .art-item:last-child{border-bottom:none;}
+  .art-pos{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--muted);width:24px;text-align:center;flex-shrink:0;}
+  .art-crest{width:28px;height:28px;object-fit:contain;flex-shrink:0;}
+  .art-info{flex:1;}
+  .art-name{font-weight:600;font-size:14px;}
+  .art-team{font-size:12px;color:var(--muted);}
+  .art-gols{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--green);flex-shrink:0;}
+
   .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
   @keyframes spin{to{transform:rotate(360deg);}}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1A1A1A;color:white;padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:all 0.3s;z-index:999;white-space:nowrap;}
@@ -246,19 +274,24 @@ function _callWhenReady(fn, args){
  'showUserMenu','fecharMenu','fazerLogout','copiarLinkMenu','switchTabMenu',
  'abrirRenomear','fecharModal','salvarNome',
  'salvarJogo','salvarTodosPalpites','salvarResultado','editarResultado','removerResultado',
- 'setView','setAdminView','enviarMsg','copiarLink'].forEach(fn=>{
+ 'setView','setAdminView','setMeusView','setClassifView','buscarResultadosAPI','enviarMsg','copiarLink'].forEach(fn=>{
   window[fn] = (...args) => _callWhenReady(fn, args);
 });
 function switchTab(tab){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
-  const tabs=['jogos','ranking','meus','regras','admin'];
+  const tabs=['jogos','ranking','meus','classif','regras','admin'];
   const idx = tabs.indexOf(tab);
-  if(idx >= 0) document.querySelectorAll('.nav-tab')[idx] && document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+  if(idx >= 0 && document.querySelectorAll('.nav-tab')[idx])
+    document.querySelectorAll('.nav-tab')[idx].classList.add('active');
   if(tab==='ranking') window.carregarRanking&&window.carregarRanking();
   if(tab==='meus') window.carregarMeusPalpites&&window.carregarMeusPalpites();
   if(tab==='admin') window.renderAdmin&&window.renderAdmin();
+  if(tab==='classif') window.carregarClassificacao&&window.carregarClassificacao();
+  // Mostra barra de salvar só na aba de jogos
+  const sticky = document.getElementById('salvarTodosSticky');
+  if(sticky) sticky.classList.toggle('visible', tab==='jogos');
 }
 window.switchTab = switchTab;
 </script>
@@ -344,6 +377,7 @@ window.switchTab = switchTab;
         <div class="nav-tab active" onclick="switchTab('jogos')">⚽ Jogos</div>
         <div class="nav-tab" onclick="switchTab('ranking')">🏆 Ranking</div>
         <div class="nav-tab" onclick="switchTab('meus')">📋 Palpites</div>
+        <div class="nav-tab" onclick="switchTab('classif')">📊 Grupos</div>
         <div class="nav-tab" onclick="switchTab('regras')">📖 Regras</div>
         <div class="nav-tab" id="adminTab" style="display:none" onclick="switchTab('admin')">⚙️ Admin</div>
       </div>
@@ -354,15 +388,12 @@ window.switchTab = switchTab;
 
     <!-- JOGOS TAB -->
     <div id="tab-jogos" class="screen active">
-      <button class="btn-salvar-todos" id="btnSalvarTodos" onclick="salvarTodosPalpites()">
-        💾 Salvar todos os palpites
-      </button>
       <div class="view-toggle">
         <div class="view-btn active" id="vbDia" onclick="setView('dia')">📅 Por Dia</div>
         <div class="view-btn" id="vbGrupo" onclick="setView('grupo')">🗂 Por Grupo</div>
       </div>
       <div class="loading" id="jogosLoading"><div class="spinner"></div>Carregando jogos...</div>
-      <div id="jogosList"></div>
+      <div id="jogosList" style="padding-bottom:80px;"></div>
     </div>
 
     <!-- RANKING TAB -->
@@ -405,6 +436,10 @@ window.switchTab = switchTab;
 
     <!-- MEUS PALPITES TAB -->
     <div id="tab-meus" class="screen">
+      <div class="view-toggle">
+        <div class="view-btn active" id="mvbDia" onclick="setMeusView('dia')">📅 Por Dia</div>
+        <div class="view-btn" id="mvbGrupo" onclick="setMeusView('grupo')">🗂 Por Grupo</div>
+      </div>
       <div class="loading" id="meusLoading"><div class="spinner"></div>Carregando seus palpites...</div>
       <div id="meusConteudo" style="display:none">
       <div class="stats-grid">
@@ -433,6 +468,16 @@ window.switchTab = switchTab;
       </div>
     </div>
 
+    <!-- CLASSIFICAÇÃO TAB -->
+    <div id="tab-classif" class="screen">
+      <div class="view-toggle">
+        <div class="view-btn active" id="cvbClass" onclick="setClassifView('grupos')">📊 Grupos</div>
+        <div class="view-btn" id="cvbArt" onclick="setClassifView('artilharia')">⚽ Artilharia</div>
+      </div>
+      <div class="loading" id="classifLoading"><div class="spinner"></div>Carregando...</div>
+      <div id="classifContent"></div>
+    </div>
+
     <!-- ADMIN TAB -->
     <div id="tab-admin" class="screen">
       <div class="card">
@@ -441,6 +486,7 @@ window.switchTab = switchTab;
           <span class="badge badge-blue">Só você vê</span>
         </div>
         <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Digite o placar final. Clique em Editar para corrigir um resultado já salvo.</p>
+        <button id="btnBuscarAPI" onclick="buscarResultadosAPI()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;margin-bottom:14px;">🔄 Buscar resultados da API</button>
         <div class="view-toggle" style="margin-bottom:12px;">
           <div class="view-btn active" id="avbData" onclick="setAdminView('data')">📅 Por Data</div>
           <div class="view-btn" id="avbGrupo" onclick="setAdminView('grupo')">🗂 Por Grupo</div>
@@ -449,6 +495,15 @@ window.switchTab = switchTab;
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- STICKY SALVAR TODOS -->
+<div class="salvar-todos-sticky" id="salvarTodosSticky">
+  <div class="inner">
+    <button class="btn-salvar-todos" id="btnSalvarTodos" onclick="salvarTodosPalpites()">
+      💾 Salvar todos os palpites
+    </button>
   </div>
 </div>
 
@@ -533,30 +588,289 @@ let viewMode = 'dia';
 let palpitesSalvos = {};
 let resultados = {};
 
-const JOGOS_COPA = [
-  {id:'a1',grupo:'Grupo A',time1:'México',flag1:'🇲🇽',time2:'Equador',flag2:'🇪🇨',utc:'2026-06-11T22:00:00Z',estadio:'SoFi Stadium, Los Angeles'},
-  {id:'a2',grupo:'Grupo A',time1:'EUA',flag1:'🇺🇸',time2:'Honduras',flag2:'🇭🇳',utc:'2026-06-13T01:00:00Z',estadio:'MetLife Stadium, Nova York'},
-  {id:'a3',grupo:'Grupo A',time1:'México',flag1:'🇲🇽',time2:'EUA',flag2:'🇺🇸',utc:'2026-06-20T01:00:00Z',estadio:'AT&T Stadium, Dallas'},
-  {id:'b1',grupo:'Grupo B',time1:'Brasil',flag1:'🇧🇷',time2:'Croácia',flag2:'🇭🇷',utc:'2026-06-13T22:00:00Z',estadio:'Hard Rock Stadium, Miami'},
-  {id:'b2',grupo:'Grupo B',time1:'Argentina',flag1:'🇦🇷',time2:'Marrocos',flag2:'🇲🇦',utc:'2026-06-14T01:00:00Z',estadio:'Gillette Stadium, Boston'},
-  {id:'b3',grupo:'Grupo B',time1:'Brasil',flag1:'🇧🇷',time2:'Argentina',flag2:'🇦🇷',utc:'2026-06-23T01:00:00Z',estadio:'MetLife Stadium, Nova York'},
-  {id:'c1',grupo:'Grupo C',time1:'Inglaterra',flag1:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',time2:'Sérvia',flag2:'🇷🇸',utc:'2026-06-14T19:00:00Z',estadio:'MetLife Stadium, Nova York'},
-  {id:'c2',grupo:'Grupo C',time1:'Portugal',flag1:'🇵🇹',time2:'Irlanda',flag2:'🇮🇪',utc:'2026-06-14T22:00:00Z',estadio:'Gillette Stadium, Boston'},
-  {id:'c3',grupo:'Grupo C',time1:'Inglaterra',flag1:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',time2:'Portugal',flag2:'🇵🇹',utc:'2026-06-24T01:00:00Z',estadio:'Mercedes-Benz Stadium, Atlanta'},
-  {id:'d1',grupo:'Grupo D',time1:'França',flag1:'🇫🇷',time2:'Austrália',flag2:'🇦🇺',utc:'2026-06-15T19:00:00Z',estadio:'Lumen Field, Seattle'},
-  {id:'d2',grupo:'Grupo D',time1:'Alemanha',flag1:'🇩🇪',time2:'Japão',flag2:'🇯🇵',utc:'2026-06-16T01:00:00Z',estadio:'Lincoln Financial Field, Filadélfia'},
-  {id:'d3',grupo:'Grupo D',time1:'França',flag1:'🇫🇷',time2:'Alemanha',flag2:'🇩🇪',utc:'2026-06-25T22:00:00Z',estadio:"Levi's Stadium, San Francisco"},
-  {id:'e1',grupo:'Grupo E',time1:'Espanha',flag1:'🇪🇸',time2:'Senegal',flag2:'🇸🇳',utc:'2026-06-16T19:00:00Z',estadio:'Estadio Akron, Guadalajara'},
-  {id:'e2',grupo:'Grupo E',time1:'Holanda',flag1:'🇳🇱',time2:'Romênia',flag2:'🇷🇴',utc:'2026-06-16T22:00:00Z',estadio:'NRG Stadium, Houston'},
-  {id:'e3',grupo:'Grupo E',time1:'Espanha',flag1:'🇪🇸',time2:'Holanda',flag2:'🇳🇱',utc:'2026-06-27T01:00:00Z',estadio:'Soldier Field, Chicago'},
-  {id:'f1',grupo:'Grupo F',time1:'Bélgica',flag1:'🇧🇪',time2:'México',flag2:'🇲🇽',utc:'2026-06-17T19:00:00Z',estadio:'Empower Field, Denver'},
-  {id:'f2',grupo:'Grupo F',time1:'Uruguai',flag1:'🇺🇾',time2:'Canadá',flag2:'🇨🇦',utc:'2026-06-17T22:00:00Z',estadio:'BMO Field, Toronto'},
-  {id:'f3',grupo:'Grupo F',time1:'Bélgica',flag1:'🇧🇪',time2:'Uruguai',flag2:'🇺🇾',utc:'2026-06-27T22:00:00Z',estadio:'Arrowhead Stadium, Kansas City'},
-  {id:'g1',grupo:'Grupo G',time1:'Colômbia',flag1:'🇨🇴',time2:'Suíça',flag2:'🇨🇭',utc:'2026-06-18T19:00:00Z',estadio:'Estadio BBVA, Monterrey'},
-  {id:'g2',grupo:'Grupo G',time1:'Itália',flag1:'🇮🇹',time2:'Coreia do Sul',flag2:'🇰🇷',utc:'2026-06-19T01:00:00Z',estadio:"BC Place, Vancouver"},
-  {id:'h1',grupo:'Grupo H',time1:'Nigéria',flag1:'🇳🇬',time2:'Chile',flag2:'🇨🇱',utc:'2026-06-19T19:00:00Z',estadio:'Mercedes-Benz Stadium, Atlanta'},
-  {id:'h2',grupo:'Grupo H',time1:'Qatar',flag1:'🇶🇦',time2:'Peru',flag2:'🇵🇪',utc:'2026-06-19T22:00:00Z',estadio:'Hard Rock Stadium, Miami'},
-];
+const WORKER_URL = 'https://sweet-recipe-d770.matheusoleiro.workers.dev';
+
+// Team name map API → app
+const FD_NAME_MAP = {
+  'Mexico':'México','South Africa':'África do Sul','Korea Republic':'Coreia do Sul',
+  'Czechia':'Tchéquia','Canada':'Canadá','Bosnia and Herzegovina':'Bósnia-Herzegovina',
+  'Qatar':'Qatar','Switzerland':'Suíça','Brazil':'BRASIL','Morocco':'Marrocos',
+  'Haiti':'Haiti','Scotland':'Escócia','USA':'EUA','Paraguay':'Paraguai',
+  'Australia':'Austrália','Turkey':'Turquia','Türkiye':'Turquia',
+  'Germany':'Alemanha',"Côte d'Ivoire":'Costa do Marfim','Ecuador':'Equador',
+  'Netherlands':'Holanda','Japan':'Japão','Sweden':'Suécia','Tunisia':'Tunísia',
+  'Belgium':'Bélgica','Egypt':'Egito','Iran':'Irã','New Zealand':'Nova Zelândia',
+  'Spain':'Espanha','Cape Verde':'Cabo Verde','Saudi Arabia':'Arábia Saudita',
+  'Uruguay':'Uruguai','France':'França','Senegal':'Senegal','Iraq':'Iraque',
+  'Norway':'Noruega','Argentina':'Argentina','Algeria':'Argélia',
+  'Austria':'Áustria','Jordan':'Jordânia','Portugal':'Portugal',
+  'DR Congo':'Congo DR','Uzbekistan':'Uzbequistão','Colombia':'Colômbia',
+  'England':'Inglaterra','Croatia':'Croácia','Ghana':'Gana','Panama':'Panamá',
+  'Curaçao':'Curaçao','Ivory Coast':'Costa do Marfim',
+  // Variantes adicionais confirmadas pela API
+  'South Korea':'Coreia do Sul',
+  'Bosnia-Herzegovina':'Bósnia-Herzegovina',
+  'United States':'EUA',
+  'Cape Verde Islands':'Cabo Verde',
+  'Congo DR':'Congo DR',
+  'Côte d\'Ivoire':'Costa do Marfim',
+};
+
+const STAGE_LABEL = {
+  'GROUP_STAGE':'Fase de Grupos',
+  'LAST_32':'16avos de Final',
+  'ROUND_OF_32':'16avos de Final',
+  'LAST_16':'Oitavas de Final',
+  'ROUND_OF_16':'Oitavas de Final',
+  'QUARTER_FINALS':'Quartas de Final',
+  'QUARTER_FINAL':'Quartas de Final',
+  'SEMI_FINALS':'Semifinal',
+  'SEMI_FINAL':'Semifinal',
+  'THIRD_PLACE':'3º Lugar',
+  'FINAL':'Final 🏆'
+};
+
+// Ordem lógica das fases para ordenar view por grupo/fase
+const STAGE_ORDER = {
+  'GROUP_STAGE':0,
+  'LAST_32':1,'ROUND_OF_32':1,
+  'LAST_16':2,'ROUND_OF_16':2,
+  'QUARTER_FINALS':3,'QUARTER_FINAL':3,
+  'SEMI_FINALS':4,'SEMI_FINAL':4,
+  'THIRD_PLACE':5,
+  'FINAL':6
+};
+
+const GROUP_LABEL = {
+  'GROUP_A':'Grupo A','GROUP_B':'Grupo B','GROUP_C':'Grupo C','GROUP_D':'Grupo D',
+  'GROUP_E':'Grupo E','GROUP_F':'Grupo F','GROUP_G':'Grupo G','GROUP_H':'Grupo H',
+  'GROUP_I':'Grupo I','GROUP_J':'Grupo J','GROUP_K':'Grupo K','GROUP_L':'Grupo L'
+};
+
+let JOGOS_COPA = []; // carregado da API
+
+
+// Mapa de estádios por jogo (baseado no schedule oficial)
+const VENUE_MAP = {
+  // GRUPO A
+  'Mexico_South Africa':'Estadio Azteca, Cidade do México',
+  'Korea Republic_Czechia':'Estadio Akron, Zapopan',
+  'South Korea_Czechia':'Estadio Akron, Zapopan',
+  'Czechia_South Africa':'Mercedes-Benz Stadium, Atlanta',
+  'Mexico_Korea Republic':'Estadio Akron, Zapopan',
+  'Mexico_South Korea':'Estadio Akron, Zapopan',
+  'Czechia_Mexico':'Estadio Azteca, Cidade do México',
+  'South Africa_Korea Republic':'Estadio BBVA, Monterrey',
+  'South Africa_South Korea':'Estadio BBVA, Monterrey',
+  // GRUPO B
+  'Canada_Bosnia and Herzegovina':'BMO Field, Toronto',
+  'Canada_Bosnia-Herzegovina':'BMO Field, Toronto',
+  'Qatar_Switzerland':"Levis Stadium, Santa Clara",
+  'Switzerland_Bosnia and Herzegovina':'SoFi Stadium, Los Angeles',
+  'Switzerland_Bosnia-Herzegovina':'SoFi Stadium, Los Angeles',
+  'Canada_Qatar':'BC Place, Vancouver',
+  'Bosnia and Herzegovina_Qatar':'Lumen Field, Seattle',
+  'Bosnia-Herzegovina_Qatar':'Lumen Field, Seattle',
+  'Switzerland_Canada':'BC Place, Vancouver',
+  // GRUPO C
+  'Brazil_Morocco':'MetLife Stadium, East Rutherford',
+  'Haiti_Scotland':'Gillette Stadium, Boston',
+  'Scotland_Morocco':'Gillette Stadium, Boston',
+  'Brazil_Haiti':'Lincoln Financial Field, Filadélfia',
+  'Scotland_Brazil':'Hard Rock Stadium, Miami',
+  'Morocco_Haiti':'Mercedes-Benz Stadium, Atlanta',
+  // GRUPO D
+  'United States_Paraguay':'SoFi Stadium, Los Angeles',
+  'USA_Paraguay':'SoFi Stadium, Los Angeles',
+  'Australia_Türkiye':'BC Place, Vancouver',
+  'Australia_Turkey':'BC Place, Vancouver',
+  'United States_Australia':'Lumen Field, Seattle',
+  'USA_Australia':'Lumen Field, Seattle',
+  'Türkiye_Paraguay':'Levis Stadium, San Francisco',
+  'Turkey_Paraguay':'Levis Stadium, San Francisco',
+  'Türkiye_United States':'SoFi Stadium, Los Angeles',
+  'Turkey_United States':'SoFi Stadium, Los Angeles',
+  'Türkiye_USA':'SoFi Stadium, Los Angeles',
+  'Paraguay_Australia':'Levis Stadium, San Francisco',
+  // GRUPO E
+  'Germany_Curaçao':'NRG Stadium, Houston',
+  "Côte d'Ivoire_Ecuador":'Lincoln Financial Field, Filadélfia',
+  'Ivory Coast_Ecuador':'Lincoln Financial Field, Filadélfia',
+  'Ecuador_Curaçao':'Arrowhead Stadium, Kansas City',
+  "Germany_Côte d'Ivoire":'BMO Field, Toronto',
+  'Germany_Ivory Coast':'BMO Field, Toronto',
+  'Ecuador_Germany':'MetLife Stadium, East Rutherford',
+  "Curaçao_Côte d'Ivoire":'Lincoln Financial Field, Filadélfia',
+  'Curaçao_Ivory Coast':'Lincoln Financial Field, Filadélfia',
+  // GRUPO F
+  'Netherlands_Japan':'AT&T Stadium, Dallas',
+  'Tunisia_Sweden':'Estadio BBVA, Monterrey',
+  'Sweden_Japan':'AT&T Stadium, Dallas',
+  'Netherlands_Tunisia':'Arrowhead Stadium, Kansas City',
+  'Japan_Tunisia':'Estadio BBVA, Monterrey',
+  'Sweden_Netherlands':'NRG Stadium, Houston',
+  // GRUPO G
+  'Belgium_Egypt':'Lumen Field, Seattle',
+  'Iran_New Zealand':'SoFi Stadium, Los Angeles',
+  'New Zealand_Egypt':'Levis Stadium, San Francisco',
+  'Belgium_Iran':'NRG Stadium, Houston',
+  'New Zealand_Belgium':'Arrowhead Stadium, Kansas City',
+  'Egypt_Iran':'Lumen Field, Seattle',
+  // GRUPO H
+  'Spain_Cape Verde':'Mercedes-Benz Stadium, Atlanta',
+  'Spain_Cape Verde Islands':'Mercedes-Benz Stadium, Atlanta',
+  'Saudi Arabia_Uruguay':'Hard Rock Stadium, Miami',
+  'Spain_Saudi Arabia':'Mercedes-Benz Stadium, Atlanta',
+  'Uruguay_Cape Verde':'Lincoln Financial Field, Filadélfia',
+  'Uruguay_Cape Verde Islands':'Lincoln Financial Field, Filadélfia',
+  'Uruguay_Spain':'Estadio Akron, Zapopan',
+  'Cape Verde_Saudi Arabia':'Estadio Akron, Zapopan',
+  'Cape Verde Islands_Saudi Arabia':'Estadio Akron, Zapopan',
+  // GRUPO I
+  'France_Senegal':'MetLife Stadium, East Rutherford',
+  'Norway_Iraq':'Gillette Stadium, Boston',
+  'France_Iraq':'Lincoln Financial Field, Filadélfia',
+  'Senegal_Norway':'BMO Field, Toronto',
+  'Norway_France':'Gillette Stadium, Boston',
+  'Iraq_Senegal':'BMO Field, Toronto',
+  // GRUPO J
+  'Argentina_Algeria':'Arrowhead Stadium, Kansas City',
+  'Austria_Jordan':'Levis Stadium, San Francisco',
+  'Argentina_Austria':'AT&T Stadium, Dallas',
+  'Jordan_Algeria':'AT&T Stadium, Dallas',
+  'Jordan_Argentina':'Mercedes-Benz Stadium, Atlanta',
+  'Algeria_Austria':'Hard Rock Stadium, Miami',
+  // GRUPO K
+  'Portugal_DR Congo':'NRG Stadium, Houston',
+  'Colombia_Uzbekistan':'Estadio BBVA, Monterrey',
+  'Portugal_Uzbekistan':'MetLife Stadium, East Rutherford',
+  'Colombia_DR Congo':'SoFi Stadium, Los Angeles',
+  'Uzbekistan_Colombia':'Estadio Azteca, Cidade do México',
+  'DR Congo_Portugal':'NRG Stadium, Houston',
+  // GRUPO L
+  'England_Croatia':'AT&T Stadium, Dallas',
+  'Ghana_Panama':'SoFi Stadium, Los Angeles',
+  'England_Ghana':'Gillette Stadium, Boston',
+  'Croatia_Panama':'BC Place, Vancouver',
+  'Croatia_Ghana':'Lumen Field, Seattle',
+  'Panama_England':'MetLife Stadium, East Rutherford',
+};
+
+function getVenue(m){
+  if(m.venue) return m.venue;
+  const key1 = `${m.homeTeam?.name}_${m.awayTeam?.name}`;
+  if(VENUE_MAP[key1]) return VENUE_MAP[key1];
+  const key2 = `${m.awayTeam?.name}_${m.homeTeam?.name}`;
+  if(VENUE_MAP[key2]) return VENUE_MAP[key2];
+  return '';
+}
+
+const FLAG_MAP = {
+  // Por nome traduzido
+  'México':'🇲🇽','África do Sul':'🇿🇦','Coreia do Sul':'🇰🇷','Tchéquia':'🇨🇿',
+  'Canadá':'🇨🇦','Bósnia-Herzegovina':'🇧🇦','Qatar':'🇶🇦','Suíça':'🇨🇭',
+  'BRASIL':'🇧🇷','Marrocos':'🇲🇦','Haiti':'🇭🇹','Escócia':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'EUA':'🇺🇸','Paraguai':'🇵🇾','Austrália':'🇦🇺','Turquia':'🇹🇷',
+  'Alemanha':'🇩🇪','Costa do Marfim':'🇨🇮','Equador':'🇪🇨',
+  'Holanda':'🇳🇱','Japão':'🇯🇵','Suécia':'🇸🇪','Tunísia':'🇹🇳',
+  'Bélgica':'🇧🇪','Egito':'🇪🇬','Irã':'🇮🇷','Nova Zelândia':'🇳🇿',
+  'Espanha':'🇪🇸','Cabo Verde':'🇨🇻','Arábia Saudita':'🇸🇦','Uruguai':'🇺🇾',
+  'França':'🇫🇷','Senegal':'🇸🇳','Iraque':'🇮🇶','Noruega':'🇳🇴',
+  'Argentina':'🇦🇷','Argélia':'🇩🇿','Áustria':'🇦🇹','Jordânia':'🇯🇴',
+  'Portugal':'🇵🇹','Congo DR':'🇨🇩','Uzbequistão':'🇺🇿','Colômbia':'🇨🇴',
+  'Inglaterra':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Croácia':'🇭🇷','Gana':'🇬🇭','Panamá':'🇵🇦',
+  'Curaçao':'🇨🇼',
+  // Por nome original da API (fallback)
+  'Mexico':'🇲🇽','South Africa':'🇿🇦','Korea Republic':'🇰🇷','Czechia':'🇨🇿',
+  'Canada':'🇨🇦','Bosnia and Herzegovina':'🇧🇦','Switzerland':'🇨🇭',
+  'Brazil':'🇧🇷','Morocco':'🇲🇦','Scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'USA':'🇺🇸','Paraguay':'🇵🇾','Australia':'🇦🇺','Turkey':'🇹🇷','Türkiye':'🇹🇷',
+  'Germany':'🇩🇪',"Côte d'Ivoire":'🇨🇮','Ivory Coast':'🇨🇮','Ecuador':'🇪🇨',
+  'Netherlands':'🇳🇱','Japan':'🇯🇵','Sweden':'🇸🇪','Tunisia':'🇹🇳',
+  'Belgium':'🇧🇪','Egypt':'🇪🇬','Iran':'🇮🇷','New Zealand':'🇳🇿',
+  'Spain':'🇪🇸','Cape Verde':'🇨🇻','Saudi Arabia':'🇸🇦','Uruguay':'🇺🇾',
+  'France':'🇫🇷','Iraq':'🇮🇶','Norway':'🇳🇴',
+  'Algeria':'🇩🇿','Austria':'🇦🇹','Jordan':'🇯🇴',
+  'Portugal':'🇵🇹','DR Congo':'🇨🇩','Uzbekistan':'🇺🇿','Colombia':'🇨🇴',
+  'England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Croatia':'🇭🇷','Ghana':'🇬🇭','Panama':'🇵🇦',
+  // Variantes confirmadas pela API
+  'South Korea':'🇰🇷','Bosnia-Herzegovina':'🇧🇦',
+  'United States':'🇺🇸','Cape Verde Islands':'🇨🇻',
+  'MEX':'🇲🇽','RSA':'🇿🇦','KOR':'🇰🇷','CZE':'🇨🇿','CAN':'🇨🇦','BIH':'🇧🇦',
+  'QAT':'🇶🇦','SUI':'🇨🇭','BRA':'🇧🇷','MAR':'🇲🇦','HAI':'🇭🇹','SCO':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'USA':'🇺🇸','PAR':'🇵🇾','AUS':'🇦🇺','TUR':'🇹🇷','GER':'🇩🇪','CIV':'🇨🇮',
+  'ECU':'🇪🇨','NED':'🇳🇱','JPN':'🇯🇵','SWE':'🇸🇪','TUN':'🇹🇳','BEL':'🇧🇪',
+  'EGY':'🇪🇬','IRN':'🇮🇷','NZL':'🇳🇿','ESP':'🇪🇸','CPV':'🇨🇻','KSA':'🇸🇦',
+  'URU':'🇺🇾','FRA':'🇫🇷','SEN':'🇸🇳','IRQ':'🇮🇶','NOR':'🇳🇴','ARG':'🇦🇷',
+  'ALG':'🇩🇿','AUT':'🇦🇹','JOR':'🇯🇴','POR':'🇵🇹','COD':'🇨🇩','UZB':'🇺🇿',
+  'COL':'🇨🇴','ENG':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','CRO':'🇭🇷','GHA':'🇬🇭','PAN':'🇵🇦','CUW':'🇨🇼',
+};
+function apiToJogo(m){
+  const h = FD_NAME_MAP[m.homeTeam?.name] || m.homeTeam?.name || '?';
+  const a = FD_NAME_MAP[m.awayTeam?.name] || m.awayTeam?.name || '?';
+  // Debug: log unmapped names
+  if(!FD_NAME_MAP[m.homeTeam?.name] && m.homeTeam?.name) console.warn('Unmapped team:', m.homeTeam.name);
+  if(!FD_NAME_MAP[m.awayTeam?.name] && m.awayTeam?.name) console.warn('Unmapped team:', m.awayTeam.name);
+  const grupo = GROUP_LABEL[m.group] || STAGE_LABEL[m.stage] || m.stage || '?';
+  const rodada = m.stage === 'GROUP_STAGE' ? `Rodada ${m.matchday}` : '';
+  return {
+    id: String(m.id),
+    apiId: m.id,
+    grupo,
+    rodada,
+    stage: m.stage,
+    time1: h,
+    flag1: FLAG_MAP[h] || FLAG_MAP[m.homeTeam?.tla] || '🏳️',
+    crest1: m.homeTeam?.crest,
+    time2: a,
+    flag2: FLAG_MAP[a] || FLAG_MAP[m.awayTeam?.tla] || '🏳️',
+    crest2: m.awayTeam?.crest,
+    utc: m.utcDate,
+    estadio: getVenue(m),
+    brasil: h === 'BRASIL' || a === 'BRASIL',
+    status: m.status,
+    score: m.score
+  };
+}
+
+async function carregarJogosAPI(){
+  try {
+    const [rSch, rFin] = await Promise.all([
+      fetch(`${WORKER_URL}/?path=matches&status=SCHEDULED`),
+      fetch(`${WORKER_URL}/?path=matches&status=FINISHED`)
+    ]);
+    const [dSch, dFin] = await Promise.all([rSch.json(), rFin.json()]);
+    // Também busca IN_PLAY
+    let inPlay = [];
+    try {
+      const rLive = await fetch(`${WORKER_URL}/?path=matches&status=IN_PLAY`);
+      const dLive = await rLive.json();
+      inPlay = dLive.matches || [];
+    } catch(e){}
+    const todos = [...(dSch.matches||[]), ...(dFin.matches||[]), ...inPlay];
+    // Deduplica por id
+    const seen = new Set();
+    const uniq = todos.filter(m => { if(seen.has(m.id)) return false; seen.add(m.id); return true; });
+    uniq.sort((a,b) => a.utcDate.localeCompare(b.utcDate));
+    JOGOS_COPA = uniq.map(apiToJogo);
+    // Sincroniza resultados dos jogos FINISHED
+    const novosRes = {};
+    for(const m of (dFin.matches||[])){
+      const g1 = m.score?.fullTime?.home;
+      const g2 = m.score?.fullTime?.away;
+      if(g1 != null && g2 != null){
+        novosRes[String(m.id)] = {gols1:g1, gols2:g2};
+      }
+    }
+    if(Object.keys(novosRes).length){
+      Object.assign(resultados, novosRes);
+    }
+    return true;
+  } catch(e){
+    console.error('Erro carregarJogosAPI:', e);
+    return false;
+  }
+}
 
 // Detecta timezone e região do usuário
 const userTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -784,14 +1098,21 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 async function carregarTudo(){
-  const resSnap = await getDoc(doc(db,'resultados','jogos'));
-  resultados = resSnap.exists() ? resSnap.data() : {};
-  if(currentUser){
-    const pSnap = await getDoc(doc(db,'palpites',currentUser.uid));
-    palpitesSalvos = pSnap.exists() ? pSnap.data() : {};
-  }
+  // Carrega jogos da API em paralelo com dados do Firestore
+  const [_, resSnap, pSnap] = await Promise.all([
+    carregarJogosAPI(),
+    getDoc(doc(db,'resultados','jogos')),
+    currentUser ? getDoc(doc(db,'palpites',currentUser.uid)) : Promise.resolve(null)
+  ]);
+  // Merge resultados do Firestore (admin manual) sobre os da API
+  const resFirestore = resSnap.exists() ? resSnap.data() : {};
+  Object.assign(resultados, resFirestore);
+  if(pSnap) palpitesSalvos = pSnap.exists() ? pSnap.data() : {};
   document.getElementById('jogosLoading').style.display = 'none';
   renderJogos();
+  // Mostra barra de salvar na aba inicial
+  const sticky = document.getElementById('salvarTodosSticky');
+  if(sticky) sticky.classList.add('visible');
 }
 
 function renderJogos(){
@@ -799,24 +1120,60 @@ function renderJogos(){
   if(viewMode === 'dia'){
     const dias = {};
     const diaKeys = []; // preserva ordem
-    for(const j of JOGOS_COPA){
+    const jogosOrdenados = [...JOGOS_COPA].sort((a,b)=>a.utc.localeCompare(b.utc));
+    for(const j of jogosOrdenados){
       const k = formatarDiaChave(j.utc);
       if(!dias[k]){ dias[k] = []; diaKeys.push(k); }
       dias[k].push(j);
     }
+    diaKeys.sort();
     for(const k of diaKeys){
       const label = formatarDiaLabel(dias[k][0].utc);
-      html += `<div class="dia-header"><span>📅 ${label}</span><span>${dias[k].length} jogo${dias[k].length>1?'s':''}</span></div>`;
+      html += `<div class="dia-header" id="dia-${k}"><span>📅 ${label}</span><span>${dias[k].length} jogo${dias[k].length>1?'s':''}</span></div>`;
       for(const j of dias[k]) html += jogoHTML(j);
     }
   } else {
+    const grupoOrder = ['Grupo A','Grupo B','Grupo C','Grupo D','Grupo E','Grupo F',
+                        'Grupo G','Grupo H','Grupo I','Grupo J','Grupo K','Grupo L',
+                        '16avos de Final','Oitavas de Final','Quartas de Final',
+                        'Semifinal','3º Lugar','Final 🏆'];
+    const jogosGrupo = [...JOGOS_COPA].sort((a,b)=>{
+      const idxA = grupoOrder.indexOf(a.grupo);
+      const idxB = grupoOrder.indexOf(b.grupo);
+      const ga = idxA === -1 ? 99 : idxA;
+      const gb = idxB === -1 ? 99 : idxB;
+      if(ga !== gb) return ga - gb;
+      // Dentro do mesmo grupo/fase, ordena por data
+      return a.utc.localeCompare(b.utc);
+    });
     let grupoAtual = '';
-    for(const j of JOGOS_COPA){
+    for(const j of jogosGrupo){
       if(j.grupo !== grupoAtual){ grupoAtual = j.grupo; html += `<div class="grupo-tag">${j.grupo}</div>`; }
       html += jogoHTML(j);
     }
   }
   document.getElementById('jogosList').innerHTML = html;
+  // Só faz scroll na view por dia
+  if(viewMode === 'dia') setTimeout(scrollToHoje, 100);
+}
+
+function scrollToHoje(){
+  const hoje = formatarDiaChave(new Date().toISOString());
+  // Tenta o dia de hoje primeiro, depois o próximo jogo futuro
+  let el = document.getElementById('dia-' + hoje);
+  if(!el){
+    // Acha o próximo dia com jogos
+    const allDias = document.querySelectorAll('[id^="dia-"]');
+    for(const d of allDias){
+      const k = d.id.replace('dia-','');
+      if(k >= hoje){ el = d; break; }
+    }
+  }
+  if(el){
+    el.scrollIntoView({behavior:'smooth', block:'start'});
+    // Compensa o header fixo (~110px)
+    setTimeout(()=>{ window.scrollBy(0, -120); }, 300);
+  }
 }
 
 function jogoComecou(utcStr){
@@ -860,21 +1217,55 @@ function jogoHTML(jogo){
     footer = `<div class="jogo-footer"><span class="palpite-status">Digite o placar</span><button class="btn-salvar-jogo" onclick="salvarJogo('${jogo.id}')">Salvar palpite</button></div>`;
   }
 
-  return `<div class="jogo-card ${jogoFinalizado ? 'finalizado' : bloqueado ? 'bloqueado' : ''}" id="card_${jogo.id}">
+  const flag1 = jogo.flag1 || '🏳️';
+  const flag2 = jogo.flag2 || '🏳️';
+
+  const cardClass = jogoFinalizado ? 'finalizado' : bloqueado ? 'bloqueado' : '';
+  const brasilClass = jogo.brasil ? 'brasil-card' : '';
+  return `<div class="jogo-card ${cardClass} ${brasilClass}" id="card_${jogo.id}">
     <div class="jogo-header">
-      <span class="jogo-grupo">${jogo.grupo}</span>
-      <span class="jogo-estadio">🏟 ${jogo.estadio}</span>
-      <span class="jogo-hora-tz">${formatarHora(jogo.utc)}</span>
+      <span class="jogo-grupo">${jogo.grupo}${jogo.rodada ? ' · '+jogo.rodada : ''}</span>
+      <span class="jogo-estadio">🏟 ${jogo.estadio||''}</span>
+      <span class="jogo-hora-tz">${formatarData(jogo.utc)} ${formatarHora(jogo.utc)}</span>
     </div>
     <div class="jogo-body">
-      <div class="jogo-time"><span class="jogo-flag">${jogo.flag1}</span><div class="jogo-pais">${jogo.time1}</div></div>
+      <div class="jogo-time"><span class="jogo-flag">${flag1}</span><div class="jogo-pais ${jogo.time1==='BRASIL'?'brasil-bold':''}">${jogo.time1}</div></div>
       <div class="jogo-placar">${inp1}<span class="placar-sep">×</span>${inp2}</div>
-      <div class="jogo-time"><span class="jogo-flag">${jogo.flag2}</span><div class="jogo-pais">${jogo.time2}</div></div>
+      <div class="jogo-time"><span class="jogo-flag">${flag2}</span><div class="jogo-pais ${jogo.time2==='BRASIL'?'brasil-bold':''}">${jogo.time2}</div></div>
     </div>
     ${jogoFinalizado ? `<div class="resultado-oficial">🏁 <strong>Resultado oficial: ${jogo.time1} ${res.gols1}×${res.gols2} ${jogo.time2}</strong></div>` : ''}
     ${footer}
   </div>`;
 }
+
+async function buscarResultadosAPI(){
+  if(!isAdmin()){ showToast('Sem permissão.'); return; }
+  const btn = document.getElementById('btnBuscarAPI');
+  if(btn){ btn.textContent='⏳ Buscando...'; btn.disabled=true; }
+  try {
+    await carregarJogosAPI();
+    // Salva resultados no Firestore pra todos verem
+    const novosRes = {};
+    for(const j of JOGOS_COPA){
+      const g1 = j.score?.fullTime?.home;
+      const g2 = j.score?.fullTime?.away;
+      if(g1 != null && g2 != null){
+        novosRes[j.id] = {gols1:g1, gols2:g2};
+      }
+    }
+    if(Object.keys(novosRes).length){
+      await setDoc(doc(db,'resultados','jogos'), novosRes, {merge:true});
+      Object.assign(resultados, novosRes);
+      showToast(`✅ ${Object.keys(novosRes).length} resultado(s) atualizados!`);
+    } else {
+      showToast('Nenhum resultado novo ainda.');
+    }
+    renderJogos(); renderAdmin(); carregarRanking();
+  } catch(e){ showToast('Erro: '+e.message); }
+  finally{ if(btn){ btn.textContent='🔄 Buscar resultados da API'; btn.disabled=false; } }
+}
+window.__buscarResultadosAPI = buscarResultadosAPI;
+// ─────────────────────────────────────────────────────────────────────
 
 // UIDs dos admins — adicione quantos quiser
 const ADMIN_UIDS = [
@@ -898,7 +1289,7 @@ function adminJogoRow(j){
   const editando = document.getElementById('ar1_'+j.id) && !document.getElementById('ar1_'+j.id).disabled;
   return `<div class="admin-jogo-row" id="arow_${j.id}">
     <div class="admin-times">
-      ${j.flag1} ${j.time1} × ${j.time2} ${j.flag2}
+      ${j.flag1||''} ${j.time1} × ${j.flag2||''} ${j.time2}
       <span>${formatarData(j.utc)} · ${formatarHora(j.utc)}</span>
     </div>
     <input class="admin-inp" type="number" min="0" max="20" id="ar1_${j.id}" placeholder="?" value="${temRes ? res.gols1 : ''}" ${temRes ? 'disabled style="opacity:0.5"' : ''}/>
@@ -1074,6 +1465,15 @@ window.__setView = (mode) => {
   renderJogos();
 };
 
+let meusViewMode = 'dia';
+
+window.__setMeusView = (mode) => {
+  meusViewMode = mode;
+  document.getElementById('mvbDia').classList.toggle('active', mode==='dia');
+  document.getElementById('mvbGrupo').classList.toggle('active', mode==='grupo');
+  carregarMeusPalpites();
+};
+
 async function carregarMeusPalpites(){
   if(!currentUser) return;
   document.getElementById('meusLoading').style.display = 'block';
@@ -1082,36 +1482,39 @@ async function carregarMeusPalpites(){
   const palpites = snap.exists() ? snap.data() : {};
   const resSnap = await getDoc(doc(db,'resultados','jogos'));
   const res = resSnap.exists() ? resSnap.data() : {};
-  let pts=0,acertos=0,exatos=0,pendentes=0,html='';
+  let pts=0,acertos=0,exatos=0,pendentes=0;
+  const cards = [];
+
   for(const j of JOGOS_COPA){
     const pal = palpites[j.id];
     const r = res[j.id];
     if(!pal) continue;
 
+    const bgColor = j.brasil ? 'var(--green-dark)' : 'var(--green)';
     const headerHtml = `
-      <div style="background:var(--green);padding:6px 14px;display:flex;align-items:center;justify-content:space-between;gap:6px;border-radius:10px 10px 0 0;">
+      <div style="background:${bgColor};padding:6px 14px;display:flex;align-items:center;justify-content:space-between;gap:6px;border-radius:10px 10px 0 0;">
         <span style="font-size:11px;font-weight:600;color:white;letter-spacing:1px;text-transform:uppercase;">${j.grupo}</span>
         <span style="font-size:10px;color:rgba(255,255,255,0.85);flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">🏟 ${j.estadio}</span>
-        <span style="font-size:11px;color:rgba(255,255,255,0.9);font-weight:600;white-space:nowrap;">${formatarHora(j.utc)}</span>
+        <span style="font-size:11px;color:rgba(255,255,255,0.9);font-weight:600;white-space:nowrap;">${formatarData(j.utc)} ${formatarHora(j.utc)}</span>
       </div>`;
 
     const timesHtml = `
       <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 14px 6px;">
-        <span style="font-size:15px;">${j.flag1}</span>
-        <span style="font-weight:600;font-size:13px;">${j.time1}</span>
+        <span style="font-size:18px;">${j.flag1||''}</span>
+        <span style="font-weight:${j.time1==='BRASIL'?'800':'600'};font-size:13px;${j.time1==='BRASIL'?'text-transform:uppercase;color:var(--green-dark)':''}">${j.time1}</span>
         <span style="font-size:13px;color:var(--muted);">×</span>
-        <span style="font-weight:600;font-size:13px;">${j.time2}</span>
-        <span style="font-size:15px;">${j.flag2}</span>
+        <span style="font-weight:${j.time2==='BRASIL'?'800':'600'};font-size:13px;${j.time2==='BRASIL'?'text-transform:uppercase;color:var(--green-dark)':''}">${j.time2}</span>
+        <span style="font-size:18px;">${j.flag2||''}</span>
       </div>`;
 
+    let cardHtml = '';
     if(r && r.gols1!==undefined){
       const p = calcPts(pal.gols1,pal.gols2,r.gols1,r.gols2);
       pts+=p; if(p===25) exatos++; if(p>0) acertos++;
       const cls = p===25?'chip-exato':p>0?'chip-vencedor':'chip-errado';
       const txt = p===25?`🎯 Exato! +25pts`:p===10?`✅ Vencedor +10pts`:p===7?`✅ Vencedor +7pts`:p===5?`🤝 Empate +5pts`:`❌ Errou`;
-      html+=`<div style="background:var(--surface);border-radius:12px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden;">
-        ${headerHtml}
-        ${timesHtml}
+      cardHtml = `<div style="background:var(--surface);border-radius:12px;border:${j.brasil?'2px solid var(--green)':'1px solid var(--border)'};margin-bottom:10px;overflow:hidden;">
+        ${headerHtml}${timesHtml}
         <div style="padding:6px 14px 10px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);margin-top:4px;">
           <span style="font-size:12px;color:var(--muted);">Palpite: ${pal.gols1}×${pal.gols2} · Resultado: ${r.gols1}×${r.gols2}</span>
           <span class="palpite-chip ${cls}">${txt}</span>
@@ -1120,14 +1523,40 @@ async function carregarMeusPalpites(){
     } else {
       pendentes++;
       const emJogo = jogoComecou(j.utc);
-      html+=`<div style="background:var(--surface);border-radius:12px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden;">
-        ${headerHtml}
-        ${timesHtml}
+      cardHtml = `<div style="background:var(--surface);border-radius:12px;border:${j.brasil?'2px solid var(--green)':'1px solid var(--border)'};margin-bottom:10px;overflow:hidden;">
+        ${headerHtml}${timesHtml}
         <div style="padding:6px 14px 10px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);margin-top:4px;">
           <span style="font-size:12px;color:var(--muted);">Palpite: ${pal.gols1}×${pal.gols2}</span>
           <span class="palpite-chip chip-pendente">${emJogo ? '🔒 Em jogo' : '⏳ Aguardando'}</span>
         </div>
       </div>`;
+    }
+    cards.push({j, cardHtml});
+  }
+
+  // Agrupa por dia ou grupo
+  let html = '';
+  if(meusViewMode === 'dia'){
+    const dias = {}; const diaKeys = [];
+    for(const {j, cardHtml} of cards){
+      const k = formatarDiaChave(j.utc);
+      if(!dias[k]){ dias[k] = []; diaKeys.push(k); }
+      dias[k].push(cardHtml);
+    }
+    diaKeys.sort();
+    for(const k of diaKeys){
+      html += `<div class="dia-header" style="margin-bottom:8px;"><span>📅 ${formatarDiaLabel(cards.find(c=>formatarDiaChave(c.j.utc)===k).j.utc)}</span></div>`;
+      html += dias[k].join('');
+    }
+  } else {
+    const grupos = {}; const grupoKeys = [];
+    for(const {j, cardHtml} of cards){
+      if(!grupos[j.grupo]){ grupos[j.grupo] = []; grupoKeys.push(j.grupo); }
+      grupos[j.grupo].push(cardHtml);
+    }
+    for(const g of grupoKeys){
+      html += `<div class="grupo-tag" style="margin-bottom:8px;">${g}</div>`;
+      html += grupos[g].join('');
     }
   }
   document.getElementById('meusPontos').textContent = pts;
@@ -1140,13 +1569,22 @@ async function carregarMeusPalpites(){
 }
 
 async function carregarRanking(){
-  const usersSnap = await getDocs(collection(db,'users'));
-  const resSnap = await getDoc(doc(db,'resultados','jogos'));
+  document.getElementById('rankingList').innerHTML = '<div class="loading"><div class="spinner"></div>Calculando ranking...</div>';
+  try {
+  // Busca users + resultados em paralelo
+  const [usersSnap, resSnap] = await Promise.all([
+    getDocs(collection(db,'users')),
+    getDoc(doc(db,'resultados','jogos'))
+  ]);
   const res = resSnap.exists() ? resSnap.data() : {};
+  // Busca todos os palpites em paralelo
+  const palpitesSnaps = await Promise.all(
+    usersSnap.docs.map(ud => getDoc(doc(db,'palpites',ud.id)))
+  );
   const ranking = [];
-  for(const ud of usersSnap.docs){
+  usersSnap.docs.forEach((ud, i) => {
     const u = ud.data();
-    const pSnap = await getDoc(doc(db,'palpites',ud.id));
+    const pSnap = palpitesSnaps[i];
     const pal = pSnap.exists() ? pSnap.data() : {};
     let pts=0,acertos=0,exatos=0;
     for(const jid of Object.keys(pal)){
@@ -1154,7 +1592,7 @@ async function carregarRanking(){
       if(r&&r.gols1!==undefined){ const pp=calcPts(p.gols1,p.gols2,r.gols1,r.gols2); pts+=pp; if(pp>0)acertos++; if(pp===25)exatos++; }
     }
     ranking.push({name:u.name||'Usuário',photo:u.photo,pts,acertos,exatos,total:Object.keys(pal).length});
-  }
+  });
   ranking.sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos);
   document.getElementById('totalParticipantes').textContent = ranking.length+' jogador'+(ranking.length!==1?'es':'');
   let html='';
@@ -1169,6 +1607,10 @@ async function carregarRanking(){
     </div>`;
   });
   document.getElementById('rankingList').innerHTML = html || '<div class="empty"><span>🏆</span>Nenhum palpite ainda!</div>';
+  } catch(e){
+    console.error('Ranking error:', e);
+    document.getElementById('rankingList').innerHTML = '<div class="empty"><span>⚠️</span>Erro ao carregar ranking.<br><small>'+e.message+'</small></div>';
+  }
 }
 
 // RESENHA
@@ -1246,9 +1688,120 @@ window.__copiarLink=()=>{
   navigator.clipboard.writeText(link).then(()=>showToast('📋 Link copiado!')).catch(()=>showToast('Link: '+link));
 };
 
-window.carregarRanking = carregarRanking;
+let classifView = 'grupos';
+
+window.__setClassifView = (mode) => {
+  classifView = mode;
+  document.getElementById('cvbClass').classList.toggle('active', mode==='grupos');
+  document.getElementById('cvbArt').classList.toggle('active', mode==='artilharia');
+  carregarClassificacao();
+};
+
+async function carregarClassificacao(){
+  document.getElementById('classifLoading').style.display = 'block';
+  document.getElementById('classifContent').innerHTML = '';
+  try {
+    if(classifView === 'grupos'){
+      const r = await fetch(`${WORKER_URL}/?path=standings`);
+      const d = await r.json();
+      const standings = d.standings || [];
+      let html = '';
+      for(const grupo of standings){
+        if(grupo.type !== 'TOTAL') continue;
+        const gLabel = GROUP_LABEL[grupo.group] || grupo.group;
+        html += `<div class="card" style="padding:12px;margin-bottom:10px;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;margin-bottom:8px;color:var(--text);">${gLabel}</div>
+          <table class="classif-table">
+            <tr><th>Time</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th><th>Pts</th></tr>
+            ${grupo.table.map((t,i) => {
+              const nome = FD_NAME_MAP[t.team?.name] || t.team?.name || '';
+              const isBrasil = nome === 'BRASIL';
+              const qual = i < 2 ? 'qualificado' : '';
+              return `<tr class="${qual} ${isBrasil?'brasil-row':''}">
+                <td>
+                  <span class="classif-pos">${t.position}</span>
+                  <span style="font-size:16px;">${FLAG_MAP[nome]||''}</span>
+                  <span style="${isBrasil?'font-weight:800;text-transform:uppercase;color:var(--green-dark)':'font-weight:600;'}">${nome}</span>
+                </td>
+                <td>${t.playedGames}</td>
+                <td>${t.won}</td>
+                <td>${t.draw}</td>
+                <td>${t.lost}</td>
+                <td>${t.goalsFor}</td>
+                <td>${t.goalsAgainst}</td>
+                <td>${t.goalDifference > 0 ? '+' : ''}${t.goalDifference}</td>
+                <td style="font-weight:700;color:var(--blue);">${t.points}</td>
+              </tr>`;
+            }).join('')}
+          </table>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px;">🟢 Top 2 se classificam automaticamente · 🟡 3º melhor pode avançar</div>
+        </div>`;
+      }
+      document.getElementById('classifContent').innerHTML = html || '<div class="empty"><span>📊</span>Classificação disponível quando a Copa começar.</div>';
+      // Add rules card
+      document.getElementById('classifContent').innerHTML += `
+        <div class="card" style="padding:14px;margin-top:4px;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;margin-bottom:8px;">📋 Regras de Classificação</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7;">
+            • <strong>48 seleções</strong> divididas em 12 grupos de 4<br>
+            • <strong>Top 2 de cada grupo</strong> avançam automaticamente (24 times)<br>
+            • <strong>8 melhores 3ºs lugares</strong> também avançam (32 times no total)<br>
+            • Critérios de desempate: Pontos → Saldo de gols → Gols marcados → Confronto direto → Fair play<br>
+            • <strong>Round of 32 → Oitavas → Quartas → Semi → Final</strong><br>
+            • Empate no mata-mata: prorrogação + pênaltis
+          </div>
+        </div>`;
+    } else {
+      // Artilharia
+      const r = await fetch(`${WORKER_URL}/?path=scorers`);
+      const d = await r.json();
+      const scorers = d.scorers || [];
+      let html = '<div class="card"><div class="card-header"><div class="section-title">⚽ Artilharia</div></div>';
+      if(!scorers.length){
+        html += '<div class="empty"><span>⚽</span>Artilharia disponível quando a Copa começar.</div>';
+      } else {
+        scorers.slice(0,20).forEach((s,i) => {
+          const nome = s.player?.name || '?';
+          const time = FD_NAME_MAP[s.team?.name] || s.team?.name || '';
+          const crest = s.team?.crest || '';
+          html += `<div class="art-item">
+            <div class="art-pos">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+            <span style="font-size:24px;width:28px;text-align:center;">${FLAG_MAP[time]||'🏳️'}</span>
+            <div class="art-info">
+              <div class="art-name">${nome}</div>
+              <div class="art-team">${time}</div>
+            </div>
+            <div class="art-gols">${s.goals}</div>
+          </div>`;
+        });
+      }
+      html += '</div>';
+      document.getElementById('classifContent').innerHTML = html;
+    }
+  } catch(e){
+    document.getElementById('classifContent').innerHTML = '<div class="empty"><span>⚠️</span>Erro ao carregar. Tente novamente.</div>';
+  }
+  document.getElementById('classifLoading').style.display = 'none';
+}
+
+window.carregarClassificacao = carregarClassificacao;
 window.carregarMeusPalpites = carregarMeusPalpites;
+window.carregarRanking = carregarRanking;
 window.renderAdmin = renderAdmin;
+
+// Debug helper
+window.__testRanking = async () => {
+  try {
+    console.log('Testing Firestore...');
+    const snap = await getDocs(collection(db,'users'));
+    console.log('✅ Users:', snap.docs.length);
+    snap.docs.forEach(d => console.log(' -', d.data().name, d.id));
+    const res = await getDoc(doc(db,'resultados','jogos'));
+    console.log('✅ Resultados:', res.exists());
+  } catch(e) {
+    console.error('❌ Firestore error:', e.code, e.message);
+  }
+};
 
 // Mostra aba admin só pro admin
 function verificarAdmin(){
