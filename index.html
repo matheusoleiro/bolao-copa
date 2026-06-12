@@ -70,7 +70,6 @@
   .login-field:focus{border-color:var(--green);}
   .btn-email-login{width:100%;background:var(--green);color:white;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px;transition:all 0.2s;}
   .btn-email-login:hover{background:var(--green-dark);}
-  .btn-fb-login{width:100%;background:#1877F2;color:white;border:none;border-radius:10px;padding:13px 20px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px;}
   .google-btn{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:13px 20px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;color:var(--text);margin-bottom:10px;}
   .google-btn:hover{background:var(--s3);}
   .google-icon{width:18px;height:18px;}
@@ -116,6 +115,13 @@
   .jogo-grupo{font-size:12px;font-weight:700;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;flex-shrink:0;}
   .jogo-estadio{font-size:11px;color:var(--text3);text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .jogo-hora-tz{font-size:13px;color:var(--gold);font-weight:400;flex-shrink:0;white-space:nowrap;font-family:'DM Mono',monospace;}
+  .jogo-news-link{
+    display:block;text-align:center;padding:7px 14px;
+    font-size:12px;color:var(--gold);text-decoration:none;
+    background:var(--s2);border-top:1px solid var(--border);
+    transition:background 0.15s;
+  }
+  .jogo-news-link:hover{background:var(--s3);}
 
   .jogo-body{padding:18px 14px;display:flex;align-items:center;gap:10px;}
   .jogo-time{flex:1;text-align:center;}
@@ -159,12 +165,21 @@
   .rank-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
   .rank-item:last-child{border-bottom:none;}
   .rank-num{font-family:'Bebas Neue',sans-serif;font-size:22px;width:28px;text-align:center;color:var(--text3);flex-shrink:0;}
+  .rank-arrow{font-size:11px;width:14px;text-align:center;flex-shrink:0;font-weight:700;}
+  .rank-arrow.up{color:var(--green);}
+  .rank-arrow.down{color:var(--red);}
+  .rank-arrow.same{color:var(--text3);}
   .rank-avatar{width:40px;height:40px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--green);flex-shrink:0;overflow:hidden;border:1.5px solid var(--border2);}
   .rank-avatar img{width:100%;height:100%;object-fit:cover;}
   .rank-info{flex:1;}
   .rank-name{font-weight:600;font-size:16px;}
   .rank-detail{font-size:13px;color:var(--text3);margin-top:2px;}
-  .rank-pts{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--green);flex-shrink:0;}
+  .rank-pts{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--green);flex-shrink:0;line-height:1;}
+  .rank-pts-wrap{display:flex;align-items:flex-end;gap:14px;flex-shrink:0;}
+  .rank-col{display:flex;flex-direction:column;align-items:center;}
+  .rank-col-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;white-space:nowrap;}
+  .rank-ultima-val{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--green);line-height:1;}
+  .rank-ultima-val.rank-ultima-zero{color:var(--text3);}
 
   /* ── RESENHA ── */
   .resenha-box{background:#111B21;border-radius:var(--r);border:1px solid rgba(255,255,255,0.06);overflow:hidden;margin-bottom:12px;}
@@ -310,12 +325,12 @@ function _callWhenReady(fn, args){
     setTimeout(()=>_callWhenReady(fn, args), 50);
   }
 }
-['loginGoogle','loginEmail','loginFacebook','cadastrarEmail','recuperarSenha',
+['loginGoogle','loginEmail','cadastrarEmail','recuperarSenha',
  'loginSwitchTab','mostrarCadastro','mostrarEntrar',
  'showUserMenu','fecharMenu','fazerLogout','copiarLinkMenu','switchTabMenu','abrirWhatsApp',
  'abrirRenomear','fecharModal','salvarNome','salvarNomeBoasVindas',
  'salvarJogo','salvarTodosPalpites','salvarResultado','editarResultado','removerResultado',
- 'setView','setAdminView','setMeusView','setClassifView','buscarResultadosAPI','enviarMsg','copiarLink'].forEach(fn=>{
+ 'setView','setAdminView','setMeusView','setClassifView','buscarResultadosAPI','enviarMsg','copiarLink','toggleGhostMode'].forEach(fn=>{
   window[fn] = (...args) => _callWhenReady(fn, args);
 });
 function switchTab(tab){
@@ -330,6 +345,12 @@ function switchTab(tab){
   if(tab==='meus') window.carregarMeusPalpites&&window.carregarMeusPalpites();
   if(tab==='admin') window.renderAdmin&&window.renderAdmin();
   if(tab==='classif') window.carregarClassificacao&&window.carregarClassificacao();
+  if(tab==='jogos' && window.viewMode === 'dia' && window.scrollToHoje){
+    setTimeout(window.scrollToHoje, 50);
+  } else if(tab!=='jogos'){
+    // Outras abas sempre abrem do topo (evita "entrar no meio" por scroll residual)
+    window.scrollTo(0, 0);
+  }
   // Mostra barra de salvar só na aba de jogos
   const sticky = document.getElementById('salvarTodosSticky');
   if(sticky) sticky.classList.toggle('visible', tab==='jogos');
@@ -350,7 +371,6 @@ window.switchTab = switchTab;
     <div class="login-tabs">
       <div class="login-tab active" id="ltGoogle" onclick="loginSwitchTab('google')">Google</div>
       <div class="login-tab" id="ltEmail" onclick="loginSwitchTab('email')">Email</div>
-      <div class="login-tab" id="ltFacebook" onclick="loginSwitchTab('facebook')">Facebook</div>
     </div>
 
     <!-- GOOGLE -->
@@ -383,16 +403,6 @@ window.switchTab = switchTab;
         <button class="btn-email-login" onclick="cadastrarEmail()">Criar conta</button>
         <div class="login-toggle">Já tem conta? <a onclick="mostrarEntrar()">Entrar</a></div>
       </div>
-    </div>
-
-    <!-- FACEBOOK -->
-    <div class="login-panel" id="lpFacebook">
-      <p style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.5;">Entre com sua conta do Facebook.</p>
-      <button class="btn-fb-login" onclick="loginFacebook()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-        Entrar com Facebook
-      </button>
-      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;">⚠️ Requer configuração no Facebook Developer</p>
     </div>
   </div>
 </div>
@@ -603,6 +613,10 @@ window.switchTab = switchTab;
       </span>
       <span>Grupo do WhatsApp</span>
     </div>
+    <div class="user-menu-item" id="ghostModeItem" onclick="toggleGhostMode()">
+      <span class="user-menu-icon">👻</span>
+      <span id="ghostModeLabel">Ghost Mode: Desativado</span>
+    </div>
     <div class="user-menu-sep"></div>
     <div class="user-menu-item danger" onclick="fazerLogout()">
       <span class="user-menu-icon">🚪</span>
@@ -628,7 +642,7 @@ window.switchTab = switchTab;
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getAuth, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, query, orderBy, onSnapshot, serverTimestamp, deleteField } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -663,8 +677,10 @@ const authTimeout = setTimeout(() => {
 
 let currentUser = null;
 let viewMode = 'dia';
+window.viewMode = 'dia';
 let palpitesSalvos = {};
 let resultados = {};
+let ghostMode = localStorage.getItem('bolao_ghost_mode') === 'true';
 
 const WORKER_URL = 'https://sweet-recipe-d770.matheusoleiro.workers.dev';
 
@@ -851,6 +867,77 @@ function normTeam(name){
   return TEAM_ALIASES[n] || n.replace(/[^a-z]/g,'');
 }
 
+// Mapa de slugs do ge.globo.com (a partir do nome em português usado no app)
+const GE_SLUG_MAP = {
+  'México': 'mexico',
+  'África do Sul': 'africa-do-sul',
+  'Coreia do Sul': 'coreia-do-sul',
+  'Tchéquia': 'tchequia',
+  'Canadá': 'canada',
+  'Bósnia-Herzegovina': 'bosnia-herzegovina',
+  'EUA': 'estados-unidos',
+  'Qatar': 'qatar',
+  'Suíça': 'suica',
+  'BRASIL': 'brasil',
+  'Marrocos': 'marrocos',
+  'Haiti': 'haiti',
+  'Escócia': 'escocia',
+  'Austrália': 'australia',
+  'Turquia': 'turquia',
+  'Alemanha': 'alemanha',
+  'Curaçao': 'curacao',
+  'Costa do Marfim': 'costa-do-marfim',
+  'Equador': 'equador',
+  'Holanda': 'holanda',
+  'Japão': 'japao',
+  'Suécia': 'suecia',
+  'Tunísia': 'tunisia',
+  'Espanha': 'espanha',
+  'Cabo Verde': 'cabo-verde',
+  'Bélgica': 'belgica',
+  'Egito': 'egito',
+  'Arábia Saudita': 'arabia-saudita',
+  'Irã': 'ira',
+  'Nova Zelândia': 'nova-zelandia',
+  'Uruguai': 'uruguai',
+  'França': 'franca',
+  'Iraque': 'iraque',
+  'Noruega': 'noruega',
+  'Senegal': 'senegal',
+  'Argentina': 'argentina',
+  'Argélia': 'argelia',
+  'Áustria': 'austria',
+  'Jordânia': 'jordania',
+  'Portugal': 'portugal',
+  'Congo DR': 'rd-congo',
+  'Uzbequistão': 'usbequistao',
+  'Colômbia': 'colombia',
+  'Inglaterra': 'inglaterra',
+  'Croácia': 'croacia',
+  'Gana': 'gana',
+  'Panamá': 'panama',
+};
+
+/**
+ * Gera a URL de cobertura do ge.globo.com pra um jogo da fase de grupos.
+ * Padrão: /futebol/copa-do-mundo/jogo/DD-MM-AAAA/{slug1}-{slug2}.ghtml
+ * A ordem dos slugs segue home-away (mandante-visitante), igual aos
+ * exemplos confirmados (ex: canada-bosnia-herzegovina, qatar-suica).
+ * Se algum time não tiver slug mapeado (ex: vencedor de playoff/repescagem
+ * ainda não definido), retorna null e o app usa fallback de busca.
+ */
+function geNoticiaUrl(jogo){
+  const slug1 = GE_SLUG_MAP[jogo.time1];
+  const slug2 = GE_SLUG_MAP[jogo.time2];
+  if(!slug1 || !slug2) return null;
+  const d = new Date(jogo.utc);
+  const dd = String(d.getUTCDate()).padStart(2,'0');
+  const mm = String(d.getUTCMonth()+1).padStart(2,'0');
+  const yyyy = d.getUTCFullYear();
+  return `https://ge.globo.com/futebol/copa-do-mundo/jogo/${dd}-${mm}-${yyyy}/${slug1}-${slug2}.ghtml`;
+}
+
+
 function getVenue(m){
   if(m.venue) return m.venue;
   const key1 = `${m.homeTeam?.name}_${m.awayTeam?.name}`;
@@ -1023,19 +1110,25 @@ function hardcodeToMatch(h){
 
 async function carregarJogosAPI(){
   try {
-    const [rSch, rFin] = await Promise.all([
-      fetch(`${WORKER_URL}/?path=matches&status=SCHEDULED`),
-      fetch(`${WORKER_URL}/?path=matches&status=FINISHED`)
-    ]);
-    const [dSch, dFin] = await Promise.all([rSch.json(), rFin.json()]);
-    // Também busca IN_PLAY
-    let inPlay = [];
+    // Uma única chamada (sem filtro de status) — retorna TODOS os jogos da
+    // competição de uma vez. O Worker cacheia essa resposta por ~30s, então
+    // múltiplos usuários compartilham a mesma chamada à origem.
+    // Timeout de 5s — se o Worker/API não responder rápido, desistimos
+    // e mantemos os dados já carregados em memória (não trava a UI).
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    let r;
     try {
-      const rLive = await fetch(`${WORKER_URL}/?path=matches&status=IN_PLAY`);
-      const dLive = await rLive.json();
-      inPlay = dLive.matches || [];
-    } catch(e){}
-    const apiMatches = [...(dSch.matches||[]), ...(dFin.matches||[]), ...inPlay];
+      r = await fetch(`${WORKER_URL}/?path=matches`, { signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+    if(!r.ok){
+      console.warn('carregarJogosAPI: resposta não-OK', r.status);
+      return false; // mantém JOGOS_COPA anterior intacto
+    }
+    const d = await r.json();
+    const apiMatches = d.matches || [];
 
     // Base: SEMPRE os 72 jogos hardcoded da fase de grupos (nunca desaparecem)
     const base = HARDCODED_GROUP_STAGE.map(hardcodeToMatch);
@@ -1082,6 +1175,14 @@ async function carregarJogosAPI(){
     return true;
   } catch(e){
     console.error('Erro carregarJogosAPI:', e);
+    // Se for a primeira carga (lista ainda vazia), preenche com o hardcode
+    // puro pra não deixar a tela em branco/loading infinito. Será
+    // enriquecido normalmente no próximo poll que tiver sucesso.
+    if(JOGOS_COPA.length === 0){
+      const base = HARDCODED_GROUP_STAGE.map(hardcodeToMatch);
+      base.sort((a,b) => a.utcDate.localeCompare(b.utcDate));
+      JOGOS_COPA = base.map(apiToJogo);
+    }
     return false;
   }
 }
@@ -1145,13 +1246,6 @@ window.__loginGoogle = async () => {
   } catch(e){ mostrarErroLogin('loginError', traduzirErro(e.code)); }
 };
 
-window.__loginFacebook = async () => {
-  try {
-    const provider = new FacebookAuthProvider();
-    await signInWithPopup(auth, provider);
-  } catch(e){ mostrarErroLogin('loginError', traduzirErro(e.code)); }
-};
-
 window.__loginEmail = async () => {
   const email = document.getElementById('emailLoginInput').value.trim();
   const senha = document.getElementById('senhaLoginInput').value;
@@ -1209,7 +1303,7 @@ function traduzirErro(code){
 }
 
 window.__loginSwitchTab = (tab) => {
-  ['google','email','facebook'].forEach(t => {
+  ['google','email'].forEach(t => {
     document.getElementById('lt'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active', t===tab);
     document.getElementById('lp'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active', t===tab);
   });
@@ -1236,6 +1330,7 @@ window.__showUserMenu = () => {
   }
   document.getElementById('menuNome').textContent = currentUser.displayName || 'Usuário';
   document.getElementById('menuEmail').textContent = currentUser.email || '';
+  updateGhostModeUI();
   document.getElementById('menuOverlay').classList.add('open');
   document.getElementById('userMenu').classList.add('open');
 };
@@ -1275,14 +1370,10 @@ window.__fazerLogout = async () => {
   if(confirm('Sair da conta?')) await signOut(auth);
 };
 
-const WHATSAPP_LINK = 'https://chat.whatsapp.com/clique-aqui-para-entrar-no-grupo-do-whatsapp';
+const WHATSAPP_LINK = 'https://chat.whatsapp.com/G8ny2VLvxGLEb1V7OzUO0t?s=cl&p=i&ilr=0';
 
 window.__abrirWhatsApp = () => {
   _fecharMenu();
-  if(WHATSAPP_LINK === 'SEU_LINK_DO_GRUPO_AQUI'){
-    showToast('Configure o link do WhatsApp no código');
-    return;
-  }
   window.open(WHATSAPP_LINK, '_blank');
 };
 
@@ -1296,6 +1387,20 @@ window.__switchTabMenu = (tab) => {
   _fecharMenu();
   switchTab(tab);
 };
+
+window.__toggleGhostMode = () => {
+  ghostMode = !ghostMode;
+  localStorage.setItem('bolao_ghost_mode', ghostMode ? 'true' : 'false');
+  updateGhostModeUI();
+  showToast(ghostMode ? '👻 Ghost Mode ativado — seus palpites ficam ocultos na tela' : 'Ghost Mode desativado');
+  renderJogos();
+  if(document.getElementById('tab-meus')?.classList.contains('active')) carregarMeusPalpites();
+};
+
+function updateGhostModeUI(){
+  const label = document.getElementById('ghostModeLabel');
+  if(label) label.textContent = 'Ghost Mode: ' + (ghostMode ? 'Ativado 👻' : 'Desativado');
+}
 
 window.__abrirRenomear = () => {
   _fecharMenu();
@@ -1477,11 +1582,16 @@ function scrollToHoje(){
     }
   }
   if(el){
-    el.scrollIntoView({behavior:'smooth', block:'start'});
-    // Compensa o header fixo (~110px)
-    setTimeout(()=>{ window.scrollBy(0, -120); }, 300);
+    // Calcula a posição exata, compensando a altura real do header fixo
+    // (medida dinamicamente — não depende da altura dos cards abaixo).
+    const headerEl = document.querySelector('.header');
+    const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 0;
+    const rect = el.getBoundingClientRect();
+    const targetY = window.scrollY + rect.top - headerHeight - 8; // 8px de respiro
+    window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
   }
 }
+window.scrollToHoje = scrollToHoje;
 
 function jogoComecou(utcStr){
   return new Date() >= new Date(utcStr);
@@ -1491,7 +1601,7 @@ function jogoHTML(jogo){
   const res = resultados[jogo.id];
   const pal = palpitesSalvos[jogo.id];
   const aoVivo = jogo.status === 'IN_PLAY' || jogo.status === 'PAUSED';
-  const jogoFinalizado = res && res.gols1 !== undefined && !aoVivo;
+  const jogoFinalizado = res && res.gols1 !== undefined;
   const palpiteDado = pal && pal.gols1 !== undefined;
   const bloqueado = jogoComecou(jogo.utc); // bloqueia input assim que o jogo começa
 
@@ -1500,43 +1610,61 @@ function jogoHTML(jogo){
   const liveG2 = jogo.score?.fullTime?.away;
   const temPlacarLive = aoVivo && liveG1 != null && liveG2 != null;
 
+  // PRIORIDADE de exibição do placar: resultado oficial > placar ao vivo > bloqueado (sem placar ainda) > input de palpite
+  // O placar mostrado é sempre o RESULTADO DO JOGO, nunca o palpite do usuário
+  // (o palpite aparece separadamente no footer do card).
   const inp1 = jogoFinalizado
-    ? `<div class="placar-real">${palpiteDado ? pal.gols1 : '—'}</div>`
+    ? `<div class="placar-real">${res.gols1}</div>`
     : temPlacarLive
       ? `<div class="placar-real" style="color:var(--red);font-weight:700;">${liveG1}</div>`
       : bloqueado
-        ? `<div class="placar-real placar-locked">${palpiteDado ? pal.gols1 : '—'}</div>`
-        : `<input class="placar-input" type="number" min="0" max="20" placeholder="?" id="p1_${jogo.id}" value="${palpiteDado ? pal.gols1 : ''}"/>`;
+        ? `<div class="placar-real placar-locked">—</div>`
+        : ghostMode
+          ? `<div class="placar-real" style="color:var(--text3);" title="Ghost Mode ativo">•</div>`
+          : `<input class="placar-input" type="number" min="0" max="20" placeholder="?" id="p1_${jogo.id}" value="${palpiteDado ? pal.gols1 : ''}"/>`;
 
   const inp2 = jogoFinalizado
-    ? `<div class="placar-real">${palpiteDado ? pal.gols2 : '—'}</div>`
+    ? `<div class="placar-real">${res.gols2}</div>`
     : temPlacarLive
       ? `<div class="placar-real" style="color:var(--red);font-weight:700;">${liveG2}</div>`
       : bloqueado
-        ? `<div class="placar-real placar-locked">${palpiteDado ? pal.gols2 : '—'}</div>`
-        : `<input class="placar-input" type="number" min="0" max="20" placeholder="?" id="p2_${jogo.id}" value="${palpiteDado ? pal.gols2 : ''}"/>`;
+        ? `<div class="placar-real placar-locked">—</div>`
+        : ghostMode
+          ? `<div class="placar-real" style="color:var(--text3);" title="Ghost Mode ativo">•</div>`
+          : `<input class="placar-input" type="number" min="0" max="20" placeholder="?" id="p2_${jogo.id}" value="${palpiteDado ? pal.gols2 : ''}"/>`;
+
+  // Link de notícias do ge.globo.com — usa URL direta da cobertura do jogo
+  // se ambos os times tiverem slug mapeado, senão cai pra busca genérica.
+  const geUrl = geNoticiaUrl(jogo)
+    || `https://ge.globo.com/busca/?q=${encodeURIComponent(jogo.time1 + ' x ' + jogo.time2)}`;
+  const geLink = `<a href="${geUrl}" target="_blank" rel="noopener" class="jogo-news-link">📰 Sobre o jogo no GloboEsporte.com</a>`;
+
+  // Ghost Mode: mascara o palpite do próprio usuário na tela (não revela
+  // na sua tela durante uma live, mas continua salvo normalmente).
+  const palDisplay = (palpiteDado && ghostMode) ? '••' : (palpiteDado ? `${pal.gols1}×${pal.gols2}` : '');
 
   let footer = '';
   if(jogoFinalizado && palpiteDado){
     const pts = calcPts(pal.gols1,pal.gols2,res.gols1,res.gols2);
     const cls = pts===25?'chip-exato':pts>0?'chip-vencedor':'chip-errado';
-    const txt = pts===25?`Exato! +25pts`:pts===10?`Vencedor +10pts`:pts===7?`Vencedor +7pts`:pts===5?`Empate +5pts`:`Errou`;
-    footer = `<div class="jogo-footer"><span class="palpite-status">Seu palpite: ${pal.gols1}×${pal.gols2}</span><span class="palpite-chip ${cls}">${txt}</span></div>`;
+    const txt = ghostMode ? '•••' : (pts===25?`Exato! +25pts`:pts===10?`Vencedor +10pts`:pts===7?`Vencedor +7pts`:pts===5?`Empate +5pts`:`Errou`);
+    footer = `<div class="jogo-footer"><span class="palpite-status">Seu palpite: ${palDisplay}</span><span class="palpite-chip ${cls}">${txt}</span></div>${geLink}`;
   } else if(jogoFinalizado && !palpiteDado){
-    footer = `<div class="jogo-footer"><span class="palpite-status" style="color:var(--muted)">Sem palpite</span><span class="palpite-chip chip-errado">0 pts</span></div>`;
+    footer = `<div class="jogo-footer"><span class="palpite-status" style="color:var(--muted)">Sem palpite</span><span class="palpite-chip chip-errado">0 pts</span></div>${geLink}`;
   } else if(aoVivo && palpiteDado){
-    footer = `<div class="jogo-footer"><span class="palpite-status ok">✓ Palpite: ${pal.gols1}×${pal.gols2}</span><span class="palpite-chip" style="background:var(--red-dim);color:var(--red);border:1px solid rgba(244,63,94,0.25);">🔴 Em andamento</span></div>`;
+    footer = `<div class="jogo-footer"><span class="palpite-status ok">✓ Palpite: ${palDisplay}</span><span class="palpite-chip" style="background:var(--red-dim);color:var(--red);border:1px solid rgba(244,63,94,0.25);">🔴 Em andamento</span></div>${geLink}`;
   } else if(aoVivo && !palpiteDado){
-    footer = `<div class="jogo-footer"><span class="palpite-status" style="color:var(--red)">Palpite encerrado</span><span class="palpite-chip" style="background:var(--red-dim);color:var(--red);border:1px solid rgba(244,63,94,0.25);">🔴 Em andamento</span></div>`;
+    footer = `<div class="jogo-footer"><span class="palpite-status" style="color:var(--red)">Palpite encerrado</span><span class="palpite-chip" style="background:var(--red-dim);color:var(--red);border:1px solid rgba(244,63,94,0.25);">🔴 Em andamento</span></div>${geLink}`;
   } else if(bloqueado && palpiteDado){
-    footer = `<div class="jogo-footer"><span class="palpite-status ok">✓ Salvo: ${pal.gols1}×${pal.gols2}</span><span class="palpite-chip chip-pendente">Em jogo</span></div>`;
+    footer = `<div class="jogo-footer"><span class="palpite-status ok">✓ Salvo: ${palDisplay}</span><span class="palpite-chip chip-pendente">Em jogo</span></div>${geLink}`;
   } else if(bloqueado && !palpiteDado){
-    footer = `<div class="jogo-footer"><span class="palpite-status" style="color:var(--red)">Palpite encerrado</span></div>`;
+    footer = `<div class="jogo-footer"><span class="palpite-status" style="color:var(--red)">Palpite encerrado</span></div>${geLink}`;
   } else if(palpiteDado){
-    footer = `<div class="jogo-footer"><span class="palpite-status ok" id="status_${jogo.id}">✓ Salvo: ${pal.gols1}×${pal.gols2}</span><button class="btn-salvar-jogo" onclick="salvarJogo('${jogo.id}')">Atualizar</button></div>`;
+    footer = `<div class="jogo-footer"><span class="palpite-status ok" id="status_${jogo.id}">✓ Salvo: ${palDisplay}</span><button class="btn-salvar-jogo" onclick="salvarJogo('${jogo.id}')">Atualizar</button></div>${geLink}`;
   } else {
-    footer = `<div class="jogo-footer"><span class="palpite-status">Digite o placar</span><button class="btn-salvar-jogo" onclick="salvarJogo('${jogo.id}')">Salvar palpite</button></div>`;
+    footer = `<div class="jogo-footer"><span class="palpite-status">Digite o placar</span><button class="btn-salvar-jogo" onclick="salvarJogo('${jogo.id}')">Salvar palpite</button></div>${geLink}`;
   }
+
 
   // Usa escudo da API com emoji como fallback (resolve Windows sem suporte a bandeiras)
   const renderFlag = (flag, crest) => {
@@ -1552,6 +1680,7 @@ function jogoHTML(jogo){
   const horaOuLive = aoVivo
     ? `<span class="jogo-hora-tz" style="color:var(--red);font-weight:700;display:flex;align-items:center;gap:4px;"><span class="live-dot"></span> AO VIVO</span>`
     : `<span class="jogo-hora-tz">${formatarData(jogo.utc)} ${formatarHora(jogo.utc)}</span>`;
+
   return `<div class="jogo-card ${cardClass} ${brasilClass} ${liveClass}" id="card_${jogo.id}">
     <div class="jogo-header">
       <span class="jogo-grupo">${jogo.grupo}${jogo.rodada ? ' · '+jogo.rodada : ''}</span>
@@ -1584,13 +1713,16 @@ async function buscarResultadosAPI(){
       }
     }
     if(Object.keys(novosRes).length){
+      // Snapshot do ranking ANTES de aplicar os novos resultados —
+      // assim as setinhas no ranking refletem a mudança desta atualização.
+      await salvarRankingSnapshot();
       await setDoc(doc(db,'resultados','jogos'), novosRes, {merge:true});
       Object.assign(resultados, novosRes);
       showToast(`✅ ${Object.keys(novosRes).length} resultado(s) atualizados!`);
     } else {
       showToast('Nenhum resultado novo ainda.');
     }
-    renderJogos(); renderAdmin(); carregarRanking();
+    renderJogos(); renderAdmin(); carregarRanking(true);
   } catch(e){ showToast('Erro: '+e.message); }
   finally{ if(btn){ btn.textContent='Buscar resultados da API'; btn.disabled=false; } }
 }
@@ -1666,13 +1798,14 @@ window.__removerResultado = async (jogoId) => {
   if(!isAdmin()){ showToast('Sem permissão.'); return; }
   if(!confirm('Remover o resultado desse jogo?')) return;
   try {
+    await salvarRankingSnapshot();
     await setDoc(doc(db,'resultados','jogos'),{[jogoId]: deleteField()},{merge:true});
     delete resultados[jogoId];
     showToast('Resultado removido!');
     const row = document.getElementById('arow_'+jogoId);
     if(row) row.outerHTML = adminJogoRow(JOGOS_COPA.find(j=>j.id===jogoId));
     renderJogos();
-    carregarRanking();
+    carregarRanking(true);
   } catch(e){ showToast('Erro: '+e.message); }
 };
 
@@ -1697,6 +1830,7 @@ window.__salvarResultado = async (jogoId) => {
   const g2 = document.getElementById('ar2_'+jogoId).value;
   if(g1===''||g2===''){ showToast('Digite os dois placares!'); return; }
   try {
+    await salvarRankingSnapshot();
     await setDoc(doc(db,'resultados','jogos'),{[jogoId]:{gols1:parseInt(g1),gols2:parseInt(g2)}},{merge:true});
     resultados[jogoId] = {gols1:parseInt(g1), gols2:parseInt(g2)};
     showToast('Resultado salvo!');
@@ -1704,7 +1838,7 @@ window.__salvarResultado = async (jogoId) => {
     const row = document.getElementById('arow_'+jogoId);
     if(row) row.outerHTML = adminJogoRow(JOGOS_COPA.find(j=>j.id===jogoId));
     renderJogos();
-    carregarRanking();
+    carregarRanking(true);
   } catch(e){ showToast('Erro: '+e.message); }
 };
 
@@ -1791,6 +1925,7 @@ window.__salvarJogo = async (jogoId) => {
 
 window.__setView = (mode) => {
   viewMode = mode;
+  window.viewMode = mode;
   document.getElementById('vbDia').classList.toggle('active', mode==='dia');
   document.getElementById('vbGrupo').classList.toggle('active', mode==='grupo');
   renderJogos();
@@ -1839,15 +1974,16 @@ async function carregarMeusPalpites(){
       </div>`;
 
     let cardHtml = '';
+    const palDisplayMeus = ghostMode ? '••' : `${pal.gols1}×${pal.gols2}`;
     if(r && r.gols1!==undefined){
       const p = calcPts(pal.gols1,pal.gols2,r.gols1,r.gols2);
       pts+=p; if(p===25) exatos++; if(p>0) acertos++;
       const cls = p===25?'chip-exato':p>0?'chip-vencedor':'chip-errado';
-      const txt = p===25?`Exato! +25pts`:p===10?`Vencedor +10pts`:p===7?`Vencedor +7pts`:p===5?`Empate +5pts`:`Errou`;
+      const txt = ghostMode ? '•••' : (p===25?`Exato! +25pts`:p===10?`Vencedor +10pts`:p===7?`Vencedor +7pts`:p===5?`Empate +5pts`:`Errou`);
       cardHtml = `<div style="background:var(--surface);border-radius:12px;border:${j.brasil?'2px solid var(--green)':'1px solid var(--border)'};margin-bottom:10px;overflow:hidden;">
         ${headerHtml}${timesHtml}
         <div style="padding:6px 14px 10px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);margin-top:4px;">
-          <span style="font-size:12px;color:var(--muted);">Palpite: ${pal.gols1}×${pal.gols2} · Resultado: ${r.gols1}×${r.gols2}</span>
+          <span style="font-size:12px;color:var(--muted);">Palpite: ${palDisplayMeus} · Resultado: ${r.gols1}×${r.gols2}</span>
           <span class="palpite-chip ${cls}">${txt}</span>
         </div>
       </div>`;
@@ -1857,7 +1993,7 @@ async function carregarMeusPalpites(){
       cardHtml = `<div style="background:var(--surface);border-radius:12px;border:${j.brasil?'2px solid var(--green)':'1px solid var(--border)'};margin-bottom:10px;overflow:hidden;">
         ${headerHtml}${timesHtml}
         <div style="padding:6px 14px 10px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);margin-top:4px;">
-          <span style="font-size:12px;color:var(--muted);">Palpite: ${pal.gols1}×${pal.gols2}</span>
+          <span style="font-size:12px;color:var(--muted);">Palpite: ${palDisplayMeus}</span>
           <span class="palpite-chip chip-pendente">${emJogo ? 'Em jogo' : 'Aguardando'}</span>
         </div>
       </div>`;
@@ -1929,19 +2065,58 @@ async function carregarRanking(force=false){
       const r=res[jid]; const p=pal[jid];
       if(r&&r.gols1!==undefined){ const pp=calcPts(p.gols1,p.gols2,r.gols1,r.gols2); pts+=pp; if(pp>0)acertos++; if(pp===25)exatos++; }
     }
-    ranking.push({name:u.name||'Usuário',photo:u.photo,pts,acertos,exatos,total:Object.keys(pal).length});
+    ranking.push({uid:ud.id,name:u.name||'Usuário',photo:u.photo,pts,acertos,exatos,total:Object.keys(pal).length});
   });
   ranking.sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos);
+
+  // Compara com o snapshot de posições da última atualização de resultados
+  let snapshot = {};
+  let pontosAnteriores = {};
+  try {
+    const snapDoc = await getDoc(doc(db,'meta','rankingSnapshot'));
+    if(snapDoc.exists()){
+      const data = snapDoc.data();
+      snapshot = data.posicoes || {};
+      pontosAnteriores = data.pontos || {};
+    }
+  } catch(e){ /* sem snapshot ainda, tudo bem */ }
+
   document.getElementById('totalParticipantes').textContent = ranking.length+' jogador'+(ranking.length!==1?'es':'');
   let html='';
   ranking.forEach((r,i)=>{
     const ini = r.name.split(' ').map(n=>n[0]).join('').slice(0,2);
     const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1;
+    const posAnterior = snapshot[r.uid];
+    let setaHtml = '';
+    if(posAnterior !== undefined){
+      const diff = posAnterior - i; // positivo = subiu, negativo = desceu
+      if(diff > 0) setaHtml = `<span class="rank-arrow up" title="Subiu ${diff} posição(ões)">▲</span>`;
+      else if(diff < 0) setaHtml = `<span class="rank-arrow down" title="Desceu ${-diff} posição(ões)">▼</span>`;
+      else setaHtml = `<span class="rank-arrow same" title="Manteve a posição">–</span>`;
+    }
+    // Pontos ganhos na última rodada (diferença vs. snapshot anterior)
+    let ultimaRodadaCol = '';
+    const ptsAntes = pontosAnteriores[r.uid];
+    if(ptsAntes !== undefined){
+      const ganho = r.pts - ptsAntes;
+      const valClass = ganho > 0 ? 'rank-ultima-val' : 'rank-ultima-val rank-ultima-zero';
+      ultimaRodadaCol = `<div class="rank-col">
+        <div class="rank-col-label">última rodada</div>
+        <div class="${valClass}">+${ganho}</div>
+      </div>`;
+    }
     html+=`<div class="rank-item">
       <div class="rank-num">${medal}</div>
+      ${setaHtml}
       <div class="rank-avatar">${r.photo?`<img src="${r.photo}" onerror="this.style.display='none'">`:ini}</div>
       <div class="rank-info"><div class="rank-name">${r.name}</div><div class="rank-detail">${r.total} palpites · ${r.exatos} exatos</div></div>
-      <div class="rank-pts">${r.pts}</div>
+      <div class="rank-pts-wrap">
+        ${ultimaRodadaCol}
+        <div class="rank-col">
+          <div class="rank-col-label">total</div>
+          <div class="rank-pts">${r.pts}</div>
+        </div>
+      </div>
     </div>`;
   });
   const finalHtml = html || '<div class="empty">Nenhum palpite ainda!</div>';
@@ -1951,6 +2126,43 @@ async function carregarRanking(force=false){
   } catch(e){
     console.error('Ranking error:', e);
     document.getElementById('rankingList').innerHTML = '<div class="empty">Erro ao carregar ranking.<br><small>'+e.message+'</small></div>';
+  }
+}
+
+/**
+ * Recalcula o ranking atual e salva as posições (uid -> índice) como
+ * snapshot no Firestore. Chamado após o admin atualizar resultados,
+ * pra que a PRÓXIMA carga do ranking mostre as setinhas de
+ * subiu/desceu/manteve comparando com o estado "antes desta atualização".
+ */
+async function salvarRankingSnapshot(){
+  try {
+    const [usersSnap, resSnap] = await Promise.all([
+      getDocs(collection(db,'users')),
+      getDoc(doc(db,'resultados','jogos'))
+    ]);
+    const res = resSnap.exists() ? resSnap.data() : {};
+    const palpitesSnaps = await Promise.all(
+      usersSnap.docs.map(ud => getDoc(doc(db,'palpites',ud.id)))
+    );
+    const ranking = [];
+    usersSnap.docs.forEach((ud, i) => {
+      const pSnap = palpitesSnaps[i];
+      const pal = pSnap.exists() ? pSnap.data() : {};
+      let pts=0,exatos=0;
+      for(const jid of Object.keys(pal)){
+        const r=res[jid]; const p=pal[jid];
+        if(r&&r.gols1!==undefined){ const pp=calcPts(p.gols1,p.gols2,r.gols1,r.gols2); pts+=pp; if(pp===25)exatos++; }
+      }
+      ranking.push({uid:ud.id,pts,exatos});
+    });
+    ranking.sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos);
+    const posicoes = {};
+    const pontos = {};
+    ranking.forEach((r,i)=>{ posicoes[r.uid] = i; pontos[r.uid] = r.pts; });
+    await setDoc(doc(db,'meta','rankingSnapshot'), {posicoes, pontos, atualizadoEm: new Date().toISOString()});
+  } catch(e){
+    console.error('Erro ao salvar snapshot do ranking:', e);
   }
 }
 
