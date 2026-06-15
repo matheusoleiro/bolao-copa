@@ -111,6 +111,18 @@
   .live-dot{width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block;animation:livePulse 1.2s ease-in-out infinite;}
   @keyframes livePulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.8);}}
 
+  .dedo-duro-btn{
+    display:block;width:100%;margin:12px 0;padding:12px 16px;
+    background:var(--s1);color:var(--text);border-radius:var(--r);
+    font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;
+    border:2px solid var(--gold);
+    animation:dedoDuroPulse 2s ease-in-out infinite;
+  }
+  @keyframes dedoDuroPulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(240,180,41,0.5);}
+    50%{box-shadow:0 0 0 6px rgba(240,180,41,0);}
+  }
+
   .jogo-header{background:var(--s2);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border);}
   .jogo-grupo{font-size:12px;font-weight:700;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;flex-shrink:0;}
   .jogo-estadio{font-size:11px;color:var(--text3);text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -165,21 +177,37 @@
   .rank-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
   .rank-item:last-child{border-bottom:none;}
   .rank-num{font-family:'Bebas Neue',sans-serif;font-size:22px;width:28px;text-align:center;color:var(--text3);flex-shrink:0;}
-  .rank-arrow{font-size:11px;width:14px;text-align:center;flex-shrink:0;font-weight:700;}
+  .rank-arrow{font-size:11px;text-align:center;font-weight:700;}
   .rank-arrow.up{color:var(--green);}
   .rank-arrow.down{color:var(--red);}
   .rank-arrow.same{color:var(--text3);}
+  .rank-seta-wrap{display:flex;flex-direction:column;align-items:center;width:16px;flex-shrink:0;gap:1px;}
+  .rank-seta-num{font-size:9px;font-weight:700;line-height:1;}
+  .rank-seta-num.up{color:var(--green);}
+  .rank-seta-num.down{color:var(--red);}
   .rank-avatar{width:40px;height:40px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--green);flex-shrink:0;overflow:hidden;border:1.5px solid var(--border2);}
   .rank-avatar img{width:100%;height:100%;object-fit:cover;}
   .rank-info{flex:1;}
   .rank-name{font-weight:600;font-size:16px;}
   .rank-detail{font-size:13px;color:var(--text3);margin-top:2px;}
+  .rank-forma{display:flex;gap:4px;margin-top:5px;}
+  .forma-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .forma-dot.forma-exato{background:var(--green);}
+  .forma-dot.forma-pontuou{background:#eab308;}
+  .forma-dot.forma-errou{background:var(--s3);border:1px solid var(--border2);}
   .rank-pts{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--green);flex-shrink:0;line-height:1;}
   .rank-pts-wrap{display:flex;align-items:flex-end;gap:14px;flex-shrink:0;}
   .rank-col{display:flex;flex-direction:column;align-items:center;}
   .rank-col-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;white-space:nowrap;}
   .rank-ultima-val{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--green);line-height:1;}
   .rank-ultima-val.rank-ultima-zero{color:var(--text3);}
+  .rank-ultima-val.rank-live-pts{color:var(--green);}
+  .rank-live-banner{
+    display:flex;align-items:center;gap:6px;font-size:12px;color:var(--red);
+    background:var(--red-dim);border:1px solid rgba(244,63,94,0.25);
+    border-radius:8px;padding:8px 12px;margin-bottom:10px;font-weight:600;
+  }
+  .rank-col-label.rank-live-label{color:var(--red);display:flex;align-items:center;gap:3px;justify-content:center;}
 
   /* ── RESENHA ── */
   .resenha-box{background:#111B21;border-radius:var(--r);border:1px solid rgba(255,255,255,0.06);overflow:hidden;margin-bottom:12px;}
@@ -330,7 +358,7 @@ function _callWhenReady(fn, args){
  'showUserMenu','fecharMenu','fazerLogout','copiarLinkMenu','switchTabMenu','abrirWhatsApp',
  'abrirRenomear','fecharModal','salvarNome','salvarNomeBoasVindas',
  'salvarJogo','salvarTodosPalpites','salvarResultado','editarResultado','removerResultado',
- 'setView','setAdminView','setMeusView','setClassifView','buscarResultadosAPI','enviarMsg','copiarLink','toggleGhostMode'].forEach(fn=>{
+ 'setView','setAdminView','setMeusView','setClassifView','buscarResultadosAPI','enviarMsg','copiarLink','toggleGhostMode','compartilharResumoWhatsApp','compartilharLembretePalpites','excluirUsuario','abrirDedoDuro','compartilharResumoOntem','recalcularSnapshot'].forEach(fn=>{
   window[fn] = (...args) => _callWhenReady(fn, args);
 });
 function switchTab(tab){
@@ -449,11 +477,16 @@ window.switchTab = switchTab;
 
     <!-- RANKING TAB -->
     <div id="tab-ranking" class="screen">
+      <button class="dedo-duro-btn" onclick="abrirDedoDuro()">
+        👀 Dedo Duro — veja o palpite de todo mundo
+      </button>
+
       <div class="card">
         <div class="card-header">
           <div class="section-title">Ranking</div>
           <span class="badge badge-green" id="totalParticipantes">0 jogadores</span>
         </div>
+        <div id="rankingLiveBanner"></div>
         <div id="rankingList"><div class="loading"><div class="spinner"></div>Calculando...</div></div>
       </div>
 
@@ -498,6 +531,7 @@ window.switchTab = switchTab;
       <div class="view-toggle">
         <div class="view-btn active" id="mvbDia" onclick="setMeusView('dia')">Por Dia</div>
         <div class="view-btn" id="mvbGrupo" onclick="setMeusView('grupo')">Por Grupo</div>
+        <div class="view-btn" id="mvbDedoDuro" onclick="setMeusView('dedoduro')">Dedo Duro</div>
       </div>
       <div class="loading" id="meusLoading"><div class="spinner"></div>Carregando seus palpites...</div>
       <div id="meusConteudo" style="display:none">
@@ -509,6 +543,20 @@ window.switchTab = switchTab;
       </div>
       <div id="meusPalpitesList"></div>
       </div><!-- /meusConteudo -->
+
+      <!-- DEDO DURO: palpites de todo mundo, só pra jogos que já começaram -->
+      <div id="dedoDuroConteudo" style="display:none">
+        <div class="card">
+          <div class="card-header">
+            <div class="section-title">Dedo Duro 👀</div>
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Veja o palpite de todo mundo nos jogos que já começaram. Jogos futuros ficam escondidos pra não vazar estratégia.</p>
+          <select id="selectJogoDedoDuro" onchange="renderDedoDuro()" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:12px;">
+            <option value="">Selecione um jogo...</option>
+          </select>
+          <div id="dedoDuroList"></div>
+        </div>
+      </div>
     </div>
 
     <!-- REGRAS TAB -->
@@ -545,12 +593,70 @@ window.switchTab = switchTab;
           <span class="badge badge-blue">Só você vê</span>
         </div>
         <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Digite o placar final. Clique em Editar para corrigir um resultado já salvo.</p>
-        <button id="btnBuscarAPI" onclick="buscarResultadosAPI()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:14px;">Buscar resultados da API</button>
+        <div style="font-size:12px;color:var(--muted);background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:10px;">
+          ⚙️ Resultados são oficializados automaticamente quando a API confirma o fim do jogo (precisa do app aberto como admin).
+        </div>
+        <button id="btnBuscarAPI" onclick="buscarResultadosAPI()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px;">Forçar verificação manual</button>
+        <button id="btnCompartilharResumo" onclick="compartilharResumoWhatsApp()" style="width:100%;background:#25D366;color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Compartilhar resumo da rodada
+        </button>
+        <button id="btnLembretePalpites" onclick="compartilharLembretePalpites()" style="width:100%;background:#25D366;color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Lembrete: palpites de hoje
+        </button>
+        <button id="btnResumoOntem" onclick="compartilharResumoOntem()" style="width:100%;background:#25D366;color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Resumo de ontem
+        </button>
         <div class="view-toggle" style="margin-bottom:12px;">
           <div class="view-btn active" id="avbData" onclick="setAdminView('data')">Por Data</div>
           <div class="view-btn" id="avbGrupo" onclick="setAdminView('grupo')">Por Grupo</div>
         </div>
         <div id="adminJogosList"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="section-title">Palpites por jogo (finalizados)</div>
+          <span class="badge badge-blue">Só você vê</span>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Compare o palpite de cada jogador com o resultado real. Só jogos já finalizados aparecem aqui — palpites de jogos futuros não são exibidos.</p>
+        <select id="selectJogoPalpites" onchange="renderPalpitesJogo()" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:10px;">
+          <option value="">Selecione um jogo finalizado...</option>
+        </select>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <input id="filtroNomePalpites" type="text" placeholder="Buscar por nome..." oninput="renderPalpitesJogo()" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;"/>
+          <select id="filtroResultadoPalpites" onchange="renderPalpitesJogo()" style="padding:10px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;">
+            <option value="">Todos os resultados</option>
+            <option value="exato">Exato (+25)</option>
+            <option value="vencedor">Vencedor (+10/+7)</option>
+            <option value="empate">Empate (+5)</option>
+            <option value="errou">Errou (0)</option>
+            <option value="sem">Sem palpite</option>
+          </select>
+        </div>
+        <div id="palpitesJogoList"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="section-title">Gerenciar usuários</div>
+          <span class="badge badge-blue">Só você vê</span>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Excluir um usuário remove seus dados do bolão (perfil e palpites) — ele some do ranking. A conta de login (Google) em si não é excluída; se a pessoa entrar de novo, um novo perfil será criado do zero.</p>
+        <input id="filtroNomeUsuarios" type="text" placeholder="Buscar por nome..." oninput="renderListaUsuarios()" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:12px;"/>
+        <div id="listaUsuarios"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="section-title">Corrigir snapshot do ranking</div>
+          <span class="badge badge-blue">Só você vê</span>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Se a coluna "última rodada" e as setinhas ▲▼ estiverem mostrando +0 / "manteve a posição" pra todo mundo (snapshot corrompido), marque abaixo o(s) jogo(s) que devem contar como "última rodada" e recalcule. Funciona direto do celular — sem precisar de console.</p>
+        <div id="snapshotCorrecaoList" style="margin-bottom:12px;"></div>
+        <button onclick="recalcularSnapshot()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Recalcular snapshot</button>
       </div>
     </div>
 
@@ -643,7 +749,7 @@ window.switchTab = switchTab;
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, query, orderBy, onSnapshot, serverTimestamp, deleteField } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, addDoc, query, orderBy, onSnapshot, serverTimestamp, deleteField } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey:"AIzaSyDUXUbhcXoIDG0_kluIsHNfmcGeT8WA6jg",
@@ -680,7 +786,20 @@ let viewMode = 'dia';
 window.viewMode = 'dia';
 let palpitesSalvos = {};
 let resultados = {};
+// IDs (string) de jogos cujo resultado JÁ ESTÁ PERSISTIDO no Firestore
+// (resultados/jogos). Diferente de `resultados` em si: carregarJogosAPI()
+// popula `resultados` em memória pra QUALQUER jogo FINISHED (pra exibição
+// imediata), mesmo antes de persistir. Sem este Set separado, a
+// auto-oficialização nunca encontrava jogos "pendentes" — `resultados[id]`
+// já existia em memória assim que a API retornava o jogo como FINISHED.
+let _resultadosPersistidos = new Set();
 let ghostMode = localStorage.getItem('bolao_ghost_mode') === 'true';
+// Cache do último placar visto por jogo ao vivo (jogoId -> "g1-g2"),
+// usado pra só recalcular o ranking provisório quando o placar mudar de fato.
+let _ultimoPlacarLive = {};
+let _rankingProvisorio = null; // {uid: ptsExtras} ou null se não há jogo ao vivo c/ palpites
+let _snapshotPreLive = null; // {uid: posicao} — posições oficiais no momento em que o jogo ao vivo atual começou (sem nenhum extra provisório)
+let _jogosOficializados = new Set(); // IDs de jogos já oficializados automaticamente nesta sessão (evita reprocessar)
 
 const WORKER_URL = 'https://sweet-recipe-d770.matheusoleiro.workers.dev';
 
@@ -1106,6 +1225,70 @@ function hardcodeToMatch(h){
   };
 }
 
+/**
+ * Combina os jogos hardcoded da fase de grupos com os dados retornados pela
+ * API (football-data.org), produzindo a lista final de jogos no formato
+ * usado por JOGOS_COPA (já passados por apiToJogo), ordenada por data.
+ *
+ * FUNÇÃO PURA — não lê/escreve variáveis globais (JOGOS_COPA, resultados,
+ * etc), recebe tudo por parâmetro. Isso permite testar com fixtures
+ * (incluindo os cenários de status inconsistente que já nos morderam, como
+ * TIMED com placar preenchido) sem precisar mockar fetch/Firestore.
+ *
+ * @param {Array} apiMatches - array `matches` retornado pela API (pode ser [])
+ * @param {Array} hardcoded - HARDCODED_GROUP_STAGE (ou um subconjunto, em testes)
+ * @returns {Array} jogos no formato JOGOS_COPA, ordenados por utc
+ */
+function mesclarJogosComAPI(apiMatches, hardcoded){
+  // Base: SEMPRE os jogos hardcoded da fase de grupos (nunca desaparecem)
+  const base = hardcoded.map(hardcodeToMatch);
+
+  // Enriquece cada jogo base com dados reais da API (status, placar, escudo, venue)
+  // Match direto por ID — o hardcode já usa os IDs REAIS da API World Cup 2026.
+  const byId = new Map(apiMatches.map(m => [m.id, m]));
+  for(const b of base){
+    const found = byId.get(b.id);
+    if(found){
+      b.status = found.status;
+      b.utcDate = found.utcDate || b.utcDate; // API pode ter horário atualizado
+      b.venue = found.venue || b.venue;
+      b.homeTeam = found.homeTeam;
+      b.awayTeam = found.awayTeam;
+      b.score = found.score;
+    }
+    // se não encontrado (ex: Coreia x Tchéquia, ausente da API), mantém
+    // os dados hardcoded — ID permanece o real (537328), garantindo que
+    // qualquer palpite salvo seja compatível quando a API "achar" o jogo.
+  }
+
+  // Jogos fora da fase de grupos (playoffs) vêm direto da API
+  const playoffs = apiMatches.filter(m => m.stage !== 'GROUP_STAGE');
+
+  const todos = [...base, ...playoffs];
+  todos.sort((a,b) => a.utcDate.localeCompare(b.utcDate));
+  return todos.map(apiToJogo);
+}
+
+/**
+ * Extrai resultados OFICIAIS (apenas jogos FINISHED com placar numérico) de
+ * uma lista de jogos no formato JOGOS_COPA. Placares de jogos IN_PLAY ficam
+ * só em jogo.score (exibição "ao vivo"), sem contar pontos até o jogo
+ * realmente terminar.
+ *
+ * FUNÇÃO PURA. @returns {{[id: string]: {gols1: number, gols2: number}}}
+ */
+function extrairResultadosFinalizados(jogosCopa){
+  const novosRes = {};
+  for(const j of jogosCopa){
+    const g1 = j.score?.fullTime?.home;
+    const g2 = j.score?.fullTime?.away;
+    if(j.status === 'FINISHED' && g1 != null && g2 != null){
+      novosRes[j.id] = {gols1:g1, gols2:g2};
+    }
+  }
+  return novosRes;
+}
+
 
 
 async function carregarJogosAPI(){
@@ -1130,45 +1313,12 @@ async function carregarJogosAPI(){
     const d = await r.json();
     const apiMatches = d.matches || [];
 
-    // Base: SEMPRE os 72 jogos hardcoded da fase de grupos (nunca desaparecem)
-    const base = HARDCODED_GROUP_STAGE.map(hardcodeToMatch);
-
-    // Enriquece cada jogo base com dados reais da API (status, placar, escudo, venue)
-    // Agora o hardcode já tem os IDs REAIS da API World Cup 2026 — match direto por ID.
-    const byId = new Map(apiMatches.map(m => [m.id, m]));
-    for(const b of base){
-      const found = byId.get(b.id);
-      if(found){
-        b.status = found.status;
-        b.utcDate = found.utcDate || b.utcDate; // API pode ter horário atualizado
-        b.venue = found.venue || b.venue;
-        b.homeTeam = found.homeTeam;
-        b.awayTeam = found.awayTeam;
-        b.score = found.score;
-      }
-      // se não encontrado (ex: Coreia x Tchéquia, ausente da API), mantém
-      // os dados hardcoded — ID permanece o real (537328), garantindo que
-      // qualquer palpite salvo seja compatível quando a API "achar" o jogo.
-    }
-
-    // Jogos fora da fase de grupos (playoffs) vêm direto da API
-    const playoffs = apiMatches.filter(m => m.stage !== 'GROUP_STAGE');
-
-    const todos = [...base, ...playoffs];
-    todos.sort((a,b) => a.utcDate.localeCompare(b.utcDate));
-    JOGOS_COPA = todos.map(apiToJogo);
+    JOGOS_COPA = mesclarJogosComAPI(apiMatches, HARDCODED_GROUP_STAGE);
 
     // Sincroniza resultados OFICIAIS (apenas jogos FINISHED) — placares de
     // jogos IN_PLAY ficam só em JOGOS_COPA[].score pra exibição "ao vivo",
     // sem contar pontos até o jogo realmente terminar.
-    const novosRes = {};
-    for(const j of JOGOS_COPA){
-      const g1 = j.score?.fullTime?.home;
-      const g2 = j.score?.fullTime?.away;
-      if(j.status === 'FINISHED' && g1 != null && g2 != null){
-        novosRes[j.id] = {gols1:g1, gols2:g2};
-      }
-    }
+    const novosRes = extrairResultadosFinalizados(JOGOS_COPA);
     if(Object.keys(novosRes).length){
       Object.assign(resultados, novosRes);
     }
@@ -1179,9 +1329,7 @@ async function carregarJogosAPI(){
     // puro pra não deixar a tela em branco/loading infinito. Será
     // enriquecido normalmente no próximo poll que tiver sucesso.
     if(JOGOS_COPA.length === 0){
-      const base = HARDCODED_GROUP_STAGE.map(hardcodeToMatch);
-      base.sort((a,b) => a.utcDate.localeCompare(b.utcDate));
-      JOGOS_COPA = base.map(apiToJogo);
+      JOGOS_COPA = mesclarJogosComAPI([], HARDCODED_GROUP_STAGE);
     }
     return false;
   }
@@ -1484,6 +1632,7 @@ async function carregarTudo(){
   // Merge resultados do Firestore (admin manual) sobre os da API
   const resFirestore = resSnap.exists() ? resSnap.data() : {};
   Object.assign(resultados, resFirestore);
+  Object.keys(resFirestore).forEach(jid => _resultadosPersistidos.add(String(jid)));
   if(pSnap) palpitesSalvos = pSnap.exists() ? pSnap.data() : {};
   document.getElementById('jogosLoading').style.display = 'none';
   renderJogos();
@@ -1492,6 +1641,10 @@ async function carregarTudo(){
   if(sticky) sticky.classList.add('visible');
   // Ativa/desativa polling de jogos em andamento
   gerenciarPollingLive();
+  // Ativa polling geral de auto-oficialização (só admin)
+  gerenciarAutoOficializacao();
+  // Se já há jogo ao vivo na primeira carga, calcula o ranking provisório
+  if(temJogoAoVivo()) atualizarPlacaresLiveECalcularProvisorio();
 }
 
 // ── POLLING DE JOGOS EM ANDAMENTO ──
@@ -1500,7 +1653,12 @@ async function carregarTudo(){
 let _livePollingInterval = null;
 
 function temJogoAoVivo(){
-  return JOGOS_COPA.some(j => j.status === 'IN_PLAY' || j.status === 'PAUSED');
+  // Ignora jogos que já têm resultado oficial salvo, mesmo que a API
+  // ainda reporte IN_PLAY/PAUSED (delay de status na origem).
+  return JOGOS_COPA.some(j =>
+    (j.status === 'IN_PLAY' || j.status === 'PAUSED') &&
+    !(resultados[j.id] && resultados[j.id].gols1 !== undefined)
+  );
 }
 
 function gerenciarPollingLive(){
@@ -1508,16 +1666,44 @@ function gerenciarPollingLive(){
   if(ativo && !_livePollingInterval){
     _livePollingInterval = setInterval(async () => {
       try {
+        // Captura quais jogos estavam ao vivo ANTES deste poll
+        const idsAoVivoAntes = new Set(
+          JOGOS_COPA.filter(j => j.status === 'IN_PLAY' || j.status === 'PAUSED').map(j => j.id)
+        );
+
         await carregarJogosAPI();
         renderJogos();
-        // Re-renderiza ranking se estiver na aba ranking (placar pode ter mudado)
-        if(document.getElementById('tab-ranking')?.classList.contains('active')){
+
+        // Se algum jogo que estava ao vivo agora está FINISHED, e o usuário
+        // é admin, oficializa o resultado automaticamente (sem precisar clicar).
+        // _jogosOficializados evita reprocessar o mesmo jogo em polls seguidos.
+        const novosFinalizados = JOGOS_COPA.filter(j =>
+          idsAoVivoAntes.has(j.id) && j.status === 'FINISHED' && !_jogosOficializados.has(j.id)
+        );
+        if(novosFinalizados.length && isAdmin()){
+          novosFinalizados.forEach(j => _jogosOficializados.add(j.id));
+          await buscarResultadosAPI();
+        }
+
+        // Só recalcula o ranking provisório se algum placar de jogo ao
+        // vivo mudou desde a última checagem (evita trabalho desnecessário
+        // a cada 60s quando nada de novo aconteceu, ex: sem gol).
+        const mudou = await atualizarPlacaresLiveECalcularProvisorio();
+        // Re-renderiza ranking se estiver na aba ranking e algo mudou
+        if(mudou && document.getElementById('tab-ranking')?.classList.contains('active')){
           carregarRanking(true);
         }
         // Para o polling se não houver mais jogo ao vivo
         if(!temJogoAoVivo()){
+          _rankingProvisorio = null;
+          _snapshotPreLive = null;
+          _ultimoPlacarLive = {};
           clearInterval(_livePollingInterval);
           _livePollingInterval = null;
+          // Re-renderiza ranking uma última vez pra remover badges provisórios
+          if(document.getElementById('tab-ranking')?.classList.contains('active')){
+            carregarRanking(true);
+          }
         }
       } catch(e){ console.error('Erro no polling live:', e); }
     }, 60000); // 60 segundos
@@ -1525,6 +1711,139 @@ function gerenciarPollingLive(){
     clearInterval(_livePollingInterval);
     _livePollingInterval = null;
   }
+}
+
+// ── POLLING GERAL DE AUTO-OFICIALIZAÇÃO (ADMIN) ──
+// Independente de detectarmos "jogo ao vivo": a cada 60s (+ uma vez
+// imediatamente ao carregar), se o usuário é admin, verifica se algum jogo
+// virou FINISHED na API sem ainda ter resultado PERSISTIDO no Firestore, e
+// oficializa automaticamente. Isso cobre o caso da origem "pular" direto
+// pra FINISHED (ex: de TIMED por inconsistência de status) sem nunca
+// aparecer como IN_PLAY pra nós.
+async function _checarEOficializarPendentes(){
+  if(_oficializandoAgora) return; // já tem uma oficialização em andamento
+  try {
+    await carregarJogosAPI();
+    // IMPORTANTE: usa _resultadosPersistidos (não `resultados`), pois
+    // carregarJogosAPI() acabou de popular `resultados` em memória pra
+    // QUALQUER jogo FINISHED — `resultados[id]` já existiria mesmo que
+    // ainda não tenha sido persistido no Firestore.
+    const pendentes = JOGOS_COPA.filter(j =>
+      j.status === 'FINISHED' &&
+      j.score?.fullTime?.home != null && j.score?.fullTime?.away != null &&
+      !_resultadosPersistidos.has(String(j.id))
+    );
+    if(pendentes.length){
+      await buscarResultadosAPI(); // persiste todos os FINISHED pendentes + atualiza _resultadosPersistidos
+      renderJogos();
+      if(document.getElementById('tab-ranking')?.classList.contains('active')){
+        carregarRanking(true);
+      }
+    }
+  } catch(e){ console.error('Erro na auto-oficialização geral:', e); }
+}
+
+let _autoOficializacaoInterval = null;
+function gerenciarAutoOficializacao(){
+  if(!isAdmin()){
+    if(_autoOficializacaoInterval){ clearInterval(_autoOficializacaoInterval); _autoOficializacaoInterval = null; }
+    return;
+  }
+  if(_autoOficializacaoInterval) return; // já rodando
+  // Checa imediatamente (não espera os 60s do primeiro tick) — cobre o
+  // caso do admin abrir o app pouco depois de um jogo ter terminado.
+  _checarEOficializarPendentes();
+  _autoOficializacaoInterval = setInterval(_checarEOficializarPendentes, 60000);
+}
+
+/**
+ * Verifica se o placar de algum jogo ao vivo mudou desde a última checagem.
+ * Se sim, recalcula o ranking PROVISÓRIO (pontos extras que cada usuário
+ * teria SE o placar atual de cada jogo ao vivo fosse o resultado final),
+ * e armazena em _rankingProvisorio (uid -> ptsExtras).
+ * Retorna true se algo mudou (placar OU lista de jogos ao vivo).
+ */
+async function atualizarPlacaresLiveECalcularProvisorio(){
+  // Exclui jogos que já têm resultado OFICIAL salvo (resultados[id]) — mesmo
+  // que a API ainda reporte status IN_PLAY (delay de status na origem).
+  // Sem isso, esses jogos seriam contados 2x: uma vez no total oficial
+  // (r.pts) e outra vez como "extra provisório" (_rankingProvisorio).
+  const jogosLive = JOGOS_COPA.filter(j =>
+    (j.status === 'IN_PLAY' || j.status === 'PAUSED') &&
+    j.score?.fullTime?.home != null && j.score?.fullTime?.away != null &&
+    !(resultados[j.id] && resultados[j.id].gols1 !== undefined)
+  );
+
+  const placarAtual = {};
+  jogosLive.forEach(j => { placarAtual[j.id] = `${j.score.fullTime.home}-${j.score.fullTime.away}`; });
+
+  // Compara com o último placar conhecido
+  const chavesAtuais = Object.keys(placarAtual);
+  const chavesAnteriores = Object.keys(_ultimoPlacarLive);
+  let mudou = chavesAtuais.length !== chavesAnteriores.length;
+  if(!mudou){
+    for(const k of chavesAtuais){
+      if(_ultimoPlacarLive[k] !== placarAtual[k]){ mudou = true; break; }
+    }
+  }
+
+  if(!mudou) return false;
+  _ultimoPlacarLive = placarAtual;
+
+  if(jogosLive.length === 0){
+    _rankingProvisorio = null;
+    _snapshotPreLive = null;
+    return true;
+  }
+
+  // Recalcula pontos extras de cada usuário considerando o placar atual
+  // dos jogos ao vivo como se fosse o resultado final.
+  try {
+    const usersSnap = await getDocs(collection(db,'users'));
+    const palpitesMap = await buscarTodosPalpites();
+
+    // Na PRIMEIRA vez que detectamos jogo(s) ao vivo nesta sessão, salva o
+    // ranking oficial (sem nenhum extra provisório) como ponto de partida
+    // pra calcular as setinhas durante esse(s) jogo(s). Isso evita misturar
+    // o efeito deste jogo com o de jogos anteriores já oficializados.
+    if(_snapshotPreLive === null){
+      const oficial = [];
+      usersSnap.docs.forEach((ud) => {
+        const pal = palpitesMap.get(ud.id) || {};
+        let pts = 0, exatos = 0;
+        for(const jid of Object.keys(pal)){
+          const r = resultados[jid]; const p = pal[jid];
+          if(r && r.gols1 !== undefined){
+            const pp = calcPts(p.gols1,p.gols2,r.gols1,r.gols2);
+            pts += pp; if(pp===25) exatos++;
+          }
+        }
+        oficial.push({uid: ud.id, pts, exatos});
+      });
+      oficial.sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos);
+      _snapshotPreLive = {};
+      oficial.forEach((r,i)=>{ _snapshotPreLive[r.uid] = i; });
+    }
+
+    const provisorio = {};
+    usersSnap.docs.forEach((ud) => {
+      const pal = palpitesMap.get(ud.id) || {};
+      let extras = 0;
+      for(const j of jogosLive){
+        const p = pal[j.id];
+        if(p && p.gols1 !== undefined){
+          extras += calcPts(p.gols1, p.gols2, j.score.fullTime.home, j.score.fullTime.away);
+        }
+      }
+      provisorio[ud.id] = extras;
+    });
+    _rankingProvisorio = provisorio;
+  } catch(e){
+    console.error('Erro ao calcular ranking provisório:', e);
+    _rankingProvisorio = null;
+    _snapshotPreLive = null;
+  }
+  return true;
 }
 
 function renderJogos(){
@@ -1600,15 +1919,21 @@ function jogoComecou(utcStr){
 function jogoHTML(jogo){
   const res = resultados[jogo.id];
   const pal = palpitesSalvos[jogo.id];
-  const aoVivo = jogo.status === 'IN_PLAY' || jogo.status === 'PAUSED';
   const jogoFinalizado = res && res.gols1 !== undefined;
+  // Não trata como "ao vivo" se já tem resultado oficial salvo, mesmo que
+  // a API ainda reporte IN_PLAY/PAUSED (delay de status na origem).
+  const aoVivo = (jogo.status === 'IN_PLAY' || jogo.status === 'PAUSED') && !jogoFinalizado;
   const palpiteDado = pal && pal.gols1 !== undefined;
   const bloqueado = jogoComecou(jogo.utc); // bloqueia input assim que o jogo começa
 
   // Placar ao vivo direto da API (mesmo sem estar em "resultados" do Firestore ainda)
   const liveG1 = jogo.score?.fullTime?.home;
   const liveG2 = jogo.score?.fullTime?.away;
-  const temPlacarLive = aoVivo && liveG1 != null && liveG2 != null;
+  // A origem às vezes reporta status inconsistente (ex: TIMED com placar já
+  // preenchido, durante transições). Se o jogo já começou (bloqueado) e há
+  // placar numérico, mostra ele mesmo que aoVivo seja false nesse momento —
+  // evita o placar "desaparecer" por causa de um status temporariamente errado.
+  const temPlacarLive = (aoVivo || (bloqueado && !jogoFinalizado)) && liveG1 != null && liveG2 != null;
 
   // PRIORIDADE de exibição do placar: resultado oficial > placar ao vivo > bloqueado (sem placar ainda) > input de palpite
   // O placar mostrado é sempre o RESULTADO DO JOGO, nunca o palpite do usuário
@@ -1697,34 +2022,45 @@ function jogoHTML(jogo){
   </div>`;
 }
 
+let _oficializandoAgora = false;
 async function buscarResultadosAPI(){
   if(!isAdmin()){ showToast('Sem permissão.'); return; }
+  if(_oficializandoAgora){ console.log('buscarResultadosAPI já em andamento, ignorando chamada duplicada.'); return; }
+  _oficializandoAgora = true;
   const btn = document.getElementById('btnBuscarAPI');
   if(btn){ btn.textContent='Buscando...'; btn.disabled=true; }
   try {
     await carregarJogosAPI();
-    // Salva resultados no Firestore pra todos verem
-    const novosRes = {};
-    for(const j of JOGOS_COPA){
-      const g1 = j.score?.fullTime?.home;
-      const g2 = j.score?.fullTime?.away;
-      if(g1 != null && g2 != null){
-        novosRes[j.id] = {gols1:g1, gols2:g2};
-      }
+    // Salva resultados no Firestore pra todos verem — APENAS jogos com
+    // status FINISHED. Jogos IN_PLAY/PAUSED têm placar parcial que não
+    // deve ser tratado como resultado oficial.
+    const novosRes = extrairResultadosFinalizados(JOGOS_COPA);
+
+    // IMPORTANTE: extrairResultadosFinalizados retorna TODOS os jogos
+    // FINISHED com placar, não só os novos. Filtramos pra só os que AINDA
+    // NÃO foram persistidos — senão, toda chamada repetida (de qualquer um
+    // dos dois pollers de auto-oficialização) re-executaria
+    // salvarRankingSnapshot() com o estado JÁ ATUALIZADO, fazendo a coluna
+    // "última rodada" mostrar +0 pra todo mundo (snapshot corrompido).
+    const novosPendentes = {};
+    for(const jid of Object.keys(novosRes)){
+      if(!_resultadosPersistidos.has(String(jid))) novosPendentes[jid] = novosRes[jid];
     }
-    if(Object.keys(novosRes).length){
+
+    if(Object.keys(novosPendentes).length){
       // Snapshot do ranking ANTES de aplicar os novos resultados —
       // assim as setinhas no ranking refletem a mudança desta atualização.
       await salvarRankingSnapshot();
-      await setDoc(doc(db,'resultados','jogos'), novosRes, {merge:true});
-      Object.assign(resultados, novosRes);
-      showToast(`✅ ${Object.keys(novosRes).length} resultado(s) atualizados!`);
+      await setDoc(doc(db,'resultados','jogos'), novosPendentes, {merge:true});
+      Object.assign(resultados, novosPendentes);
+      Object.keys(novosPendentes).forEach(jid => _resultadosPersistidos.add(String(jid)));
+      showToast(`✅ ${Object.keys(novosPendentes).length} resultado(s) atualizados!`);
     } else {
       showToast('Nenhum resultado novo ainda.');
     }
     renderJogos(); renderAdmin(); carregarRanking(true);
   } catch(e){ showToast('Erro: '+e.message); }
-  finally{ if(btn){ btn.textContent='Buscar resultados da API'; btn.disabled=false; } }
+  finally{ _oficializandoAgora = false; if(btn){ btn.textContent='Buscar resultados da API'; btn.disabled=false; } }
 }
 window.__buscarResultadosAPI = buscarResultadosAPI;
 // ─────────────────────────────────────────────────────────────────────
@@ -1792,6 +2128,358 @@ function renderAdmin(){
     }
   }
   document.getElementById('adminJogosList').innerHTML = html;
+  popularSelectJogosFinalizados();
+  renderListaUsuarios();
+  renderSnapshotCorrecao();
+}
+
+/**
+ * Popula o <select> com os jogos que já têm resultado oficial salvo
+ * (resultados[id] !== undefined), ordenados do mais recente pro mais antigo.
+ * Preserva a seleção atual se ainda existir na lista.
+ */
+function popularSelectJogosFinalizados(){
+  const sel = document.getElementById('selectJogoPalpites');
+  if(!sel) return;
+  const valorAtual = sel.value;
+  const finalizados = JOGOS_COPA
+    .filter(j => resultados[j.id] && resultados[j.id].gols1 !== undefined)
+    .sort((a,b)=>b.utc.localeCompare(a.utc)); // mais recente primeiro
+
+  let html = '<option value="">Selecione um jogo finalizado...</option>';
+  finalizados.forEach(j => {
+    const r = resultados[j.id];
+    html += `<option value="${j.id}">${j.time1} ${r.gols1}×${r.gols2} ${j.time2} — ${formatarData(j.utc)}</option>`;
+  });
+  sel.innerHTML = html;
+  if(finalizados.some(j => String(j.id) === valorAtual)) sel.value = valorAtual;
+}
+
+/**
+ * Renderiza a lista de usuários no card "Gerenciar usuários" do Admin,
+ * com botão de excluir pra cada um (exceto admins). Aplica o filtro de
+ * busca por nome em #filtroNomeUsuarios.
+ */
+window.renderListaUsuarios = async () => {
+  const container = document.getElementById('listaUsuarios');
+  if(!container) return;
+  const filtro = (document.getElementById('filtroNomeUsuarios')?.value || '').trim().toLowerCase();
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando usuários...</div>';
+  try {
+    const usersSnap = await getDocs(collection(db,'users'));
+    let usuarios = usersSnap.docs.map(ud => ({uid: ud.id, ...ud.data()}));
+    usuarios.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+    if(filtro){
+      usuarios = usuarios.filter(u => (u.name||'').toLowerCase().includes(filtro));
+    }
+
+    if(usuarios.length === 0){
+      container.innerHTML = '<div class="empty">Nenhum usuário encontrado.</div>';
+      return;
+    }
+
+    let html = '<div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);">';
+    usuarios.forEach((u,i) => {
+      const ehAdmin = ADMIN_UIDS.includes(u.uid);
+      const bg = i % 2 === 0 ? 'var(--s1)' : 'var(--s2)';
+      html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:${bg};${i<usuarios.length-1?'border-bottom:1px solid var(--border);':''}">
+        <div>
+          <span style="font-size:13px;">${u.name || 'Usuário'}</span>
+          ${ehAdmin ? '<span class="palpite-chip chip-vencedor" style="font-size:10px;margin-left:6px;">admin</span>' : ''}
+          <div style="font-size:11px;color:var(--text3);margin-top:1px;">${u.email || ''}</div>
+        </div>
+        ${ehAdmin
+          ? '<span style="font-size:11px;color:var(--text3);">protegido</span>'
+          : `<button onclick="excluirUsuario('${u.uid}','${(u.name||'Usuário').replace(/'/g,"\\'")}')" style="background:var(--red-dim);color:var(--red);border:1px solid rgba(244,63,94,0.25);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Excluir</button>`
+        }
+      </div>`;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+  } catch(e){
+    container.innerHTML = '<div class="empty">Erro ao carregar usuários.<br><small>'+e.message+'</small></div>';
+  }
+};
+
+/**
+ * Exclui os dados de um usuário do bolão: documento em `users/{uid}` e
+ * `palpites/{uid}`. Pede confirmação explícita (digitar o nome) antes de
+ * excluir, pra evitar cliques acidentais.
+ *
+ * LIMITAÇÃO: isso NÃO exclui a conta de login (Google) da pessoa — apenas
+ * os dados dela dentro do bolão. Excluir a conta de autenticação em si
+ * exigiria acesso ao Firebase Admin SDK (não disponível no frontend).
+ * Se a pessoa logar de novo, um novo perfil será criado do zero.
+ */
+window.__excluirUsuario = async (uid, nome) => {
+  if(!isAdmin()){ showToast('Sem permissão.'); return; }
+  if(ADMIN_UIDS.includes(uid)){ showToast('Não é possível excluir um admin.'); return; }
+
+  const confirmacao = prompt(`Pra confirmar a exclusão de "${nome}" (palpites + perfil, irreversível), digite o nome exatamente como mostrado:`);
+  if(confirmacao !== nome){
+    if(confirmacao !== null) showToast('Nome não corresponde — exclusão cancelada.');
+    return;
+  }
+
+  try {
+    await deleteDoc(doc(db,'palpites',uid));
+    await deleteDoc(doc(db,'users',uid));
+    showToast(`✅ "${nome}" excluído do bolão.`);
+    renderListaUsuarios();
+    carregarRanking(true);
+  } catch(e){
+    showToast('Erro ao excluir: '+e.message);
+  }
+};
+
+/**
+ * Renderiza a lista de checkboxes do card "Corrigir snapshot do ranking":
+ * os últimos jogos FINALIZADOS (mais recente primeiro), pra o admin marcar
+ * quais devem ser tratados como "última rodada" ao recalcular.
+ *
+ * Default: marca só os jogos do MESMO DIA do jogo mais recente — cobre o
+ * caso comum (1 rodada = jogos de um dia), mas o admin pode ajustar.
+ */
+window.renderSnapshotCorrecao = () => {
+  const container = document.getElementById('snapshotCorrecaoList');
+  if(!container) return;
+
+  const finalizados = JOGOS_COPA
+    .filter(j => resultados[j.id] && resultados[j.id].gols1 !== undefined)
+    .sort((a,b)=>b.utc.localeCompare(a.utc)); // mais recente primeiro
+
+  if(finalizados.length === 0){
+    container.innerHTML = '<div class="empty">Nenhum jogo finalizado ainda.</div>';
+    return;
+  }
+
+  const diaMaisRecente = formatarDiaChave(finalizados[0].utc);
+
+  let html = '';
+  finalizados.slice(0, 8).forEach(j => {
+    const r = resultados[j.id];
+    const marcado = formatarDiaChave(j.utc) === diaMaisRecente ? 'checked' : '';
+    html += `<label style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
+      <input type="checkbox" class="snapshot-jogo-cb" value="${j.id}" ${marcado} style="width:18px;height:18px;flex-shrink:0;">
+      <span>${j.time1} ${r.gols1}×${r.gols2} ${j.time2} <span style="color:var(--text3);">(${formatarData(j.utc)})</span></span>
+    </label>`;
+  });
+  container.innerHTML = html;
+};
+
+/**
+ * Recalcula `meta/rankingSnapshot` representando "o ranking ANTES dos
+ * jogos marcados como última rodada". Isso corrige a coluna "última
+ * rodada" e as setinhas ▲▼ quando o snapshot foi corrompido (ex: chamadas
+ * repetidas de auto-oficialização re-snapshotando o estado já atualizado).
+ *
+ * Funciona inteiramente no app — sem precisar de console do navegador,
+ * então roda direto do celular.
+ */
+window.__recalcularSnapshot = async () => {
+  if(!isAdmin()){ showToast('Sem permissão.'); return; }
+
+  const checkboxes = document.querySelectorAll('.snapshot-jogo-cb:checked');
+  const idsUltimaRodada = new Set([...checkboxes].map(cb => String(cb.value)));
+
+  if(idsUltimaRodada.size === 0){
+    showToast('Marque pelo menos 1 jogo como "última rodada".');
+    return;
+  }
+
+  const nomes = [...idsUltimaRodada].map(id => {
+    const j = JOGOS_COPA.find(jj => String(jj.id) === id);
+    const r = resultados[id];
+    return j ? `${j.time1} ${r.gols1}×${r.gols2} ${j.time2}` : id;
+  });
+
+  if(!confirm(`Recalcular snapshot tratando estes jogos como "última rodada"?\n\n${nomes.join('\n')}\n\nIsso vai sobrescrever o snapshot atual.`)) return;
+
+  try {
+    const usersSnap = await getDocs(collection(db,'users'));
+    const palpitesMap = await buscarTodosPalpites();
+
+    // resAntes = resultados oficiais SEM os jogos marcados
+    const resAntes = {...resultados};
+    idsUltimaRodada.forEach(id => delete resAntes[id]);
+
+    const ranking = [];
+    usersSnap.docs.forEach((ud) => {
+      const pal = palpitesMap.get(ud.id) || {};
+      let pts=0, exatos=0;
+      for(const jid of Object.keys(pal)){
+        const r = resAntes[jid]; const p = pal[jid];
+        if(r && r.gols1 !== undefined){
+          const pp = calcPts(p.gols1,p.gols2,r.gols1,r.gols2);
+          pts += pp; if(pp===25) exatos++;
+        }
+      }
+      ranking.push({uid: ud.id, pts, exatos});
+    });
+    ranking.sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos);
+
+    const posicoes = {};
+    const pontos = {};
+    ranking.forEach((r,i)=>{ posicoes[r.uid]=i; pontos[r.uid]=r.pts; });
+
+    const jogosComResultado = Object.keys(resAntes);
+
+    await setDoc(doc(db,'meta','rankingSnapshot'), {posicoes, pontos, jogosComResultado, atualizadoEm: new Date().toISOString()});
+    showToast('✅ Snapshot recalculado!');
+    carregarRanking(true);
+  } catch(e){
+    showToast('Erro: '+e.message);
+  }
+};
+
+/**
+ * Mostra a tabela comparativa: palpite de cada jogador vs. resultado real,
+ * pro jogo selecionado no <select>. Ordena por pontos ganhos (maior primeiro).
+ */
+window.renderPalpitesJogo = async () => {
+  const sel = document.getElementById('selectJogoPalpites');
+  const container = document.getElementById('palpitesJogoList');
+  const jogoId = sel.value;
+  const filtroNome = (document.getElementById('filtroNomePalpites')?.value || '').trim().toLowerCase();
+
+  if(!jogoId){
+    if(filtroNome){
+      await renderPalpitesPorPessoa(filtroNome);
+    } else {
+      container.innerHTML = '';
+    }
+    return;
+  }
+
+  const jogo = JOGOS_COPA.find(j => String(j.id) === String(jogoId));
+  const res = resultados[jogoId];
+  if(!jogo || !res){ container.innerHTML = '<div class="empty">Resultado não encontrado.</div>'; return; }
+
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando palpites...</div>';
+
+  try {
+    const usersSnap = await getDocs(collection(db,'users'));
+    const palpitesMap = await buscarTodosPalpites();
+
+    const linhas = [];
+    usersSnap.docs.forEach((ud) => {
+      const u = ud.data();
+      const pal = palpitesMap.get(ud.id) || {};
+      const p = pal[jogoId];
+      if(p && p.gols1 !== undefined){
+        const pts = calcPts(p.gols1,p.gols2,res.gols1,res.gols2);
+        const categoria = pts===25?'exato':pts===10||pts===7?'vencedor':pts===5?'empate':'errou';
+        linhas.push({name: u.name || 'Usuário', palpite: `${p.gols1}×${p.gols2}`, pts, categoria});
+      } else {
+        linhas.push({name: u.name || 'Usuário', palpite: '—', pts: 0, semPalpite: true, categoria: 'sem'});
+      }
+    });
+    // Ordena por pontos (maior primeiro), depois alfabético
+    linhas.sort((a,b)=> b.pts - a.pts || a.name.localeCompare(b.name));
+
+    // Aplica filtros de nome e resultado
+    const filtroNome = (document.getElementById('filtroNomePalpites')?.value || '').trim().toLowerCase();
+    const filtroResultado = document.getElementById('filtroResultadoPalpites')?.value || '';
+    const linhasFiltradas = linhas.filter(l => {
+      if(filtroNome && !l.name.toLowerCase().includes(filtroNome)) return false;
+      if(filtroResultado && l.categoria !== filtroResultado) return false;
+      return true;
+    });
+
+    let html = `<div style="font-size:13px;color:var(--muted);margin-bottom:10px;">
+      Resultado real: <strong style="color:var(--text);">${jogo.time1} ${res.gols1}×${res.gols2} ${jogo.time2}</strong>
+      <span style="float:right;">${linhasFiltradas.length} de ${linhas.length}</span>
+    </div>`;
+    if(linhasFiltradas.length === 0){
+      html += '<div class="empty">Nenhum resultado para esse filtro.</div>';
+    } else {
+    html += '<div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);">';
+    linhasFiltradas.forEach((l,i)=>{
+      const cls = l.pts===25?'chip-exato':l.pts>0?'chip-vencedor':'chip-errado';
+      const txt = l.semPalpite ? 'Sem palpite' : l.pts===25?'Exato +25':l.pts===10?'Vencedor +10':l.pts===7?'Vencedor +7':l.pts===5?'Empate +5':'Errou';
+      const bg = i % 2 === 0 ? 'var(--s1)' : 'var(--s2)';
+      html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:${bg};${i<linhasFiltradas.length-1?'border-bottom:1px solid var(--border);':''}">
+        <span style="font-size:13px;">${l.name}</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);">${l.palpite}</span>
+          <span class="palpite-chip ${cls}" style="font-size:11px;">${txt}</span>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+    }
+    container.innerHTML = html;
+  } catch(e){
+    container.innerHTML = '<div class="empty">Erro ao carregar palpites.<br><small>'+e.message+'</small></div>';
+  }
+};
+
+/**
+ * Quando há filtro de NOME mas nenhum jogo selecionado: mostra, para cada
+ * pessoa cujo nome bate com o filtro, todos os palpites dela em jogos
+ * já finalizados, comparados com o resultado real. Aplica também o
+ * filtro de resultado (exato/vencedor/empate/errou/sem) se selecionado.
+ */
+async function renderPalpitesPorPessoa(filtroNome){
+  const container = document.getElementById('palpitesJogoList');
+  const filtroResultado = document.getElementById('filtroResultadoPalpites')?.value || '';
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando palpites...</div>';
+
+  try {
+    const usersSnap = await getDocs(collection(db,'users'));
+    const pessoas = usersSnap.docs.filter(ud => (ud.data().name||'').toLowerCase().includes(filtroNome));
+
+    if(pessoas.length === 0){
+      container.innerHTML = '<div class="empty">Nenhum jogador encontrado com esse nome.</div>';
+      return;
+    }
+
+    const finalizados = JOGOS_COPA
+      .filter(j => resultados[j.id] && resultados[j.id].gols1 !== undefined)
+      .sort((a,b)=>b.utc.localeCompare(a.utc));
+
+    const palpitesMap = await buscarTodosPalpites();
+
+    let html = '';
+    pessoas.forEach((ud) => {
+      const u = ud.data();
+      const pal = palpitesMap.get(ud.id) || {};
+
+      const linhas = finalizados.map(j => {
+        const res = resultados[j.id];
+        const p = pal[j.id];
+        if(p && p.gols1 !== undefined){
+          const pts = calcPts(p.gols1,p.gols2,res.gols1,res.gols2);
+          const categoria = pts===25?'exato':pts===10||pts===7?'vencedor':pts===5?'empate':'errou';
+          return {jogo: j, res, palpite: `${p.gols1}×${p.gols2}`, pts, categoria};
+        }
+        return {jogo: j, res, palpite: '—', pts: 0, semPalpite: true, categoria: 'sem'};
+      }).filter(l => !filtroResultado || l.categoria === filtroResultado);
+
+      if(linhas.length === 0) return; // nada a mostrar pra essa pessoa com esse filtro
+
+      html += `<div style="margin-bottom:14px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:6px;">${u.name || 'Usuário'}</div>
+        <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);">`;
+      linhas.forEach((l,i)=>{
+        const cls = l.pts===25?'chip-exato':l.pts>0?'chip-vencedor':'chip-errado';
+        const txt = l.semPalpite ? 'Sem palpite' : l.pts===25?'Exato +25':l.pts===10?'Vencedor +10':l.pts===7?'Vencedor +7':l.pts===5?'Empate +5':'Errou';
+        const bg = i % 2 === 0 ? 'var(--s1)' : 'var(--s2)';
+        html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:${bg};${i<linhas.length-1?'border-bottom:1px solid var(--border);':''}">
+          <span style="font-size:13px;color:var(--muted);">${l.jogo.time1} ${l.res.gols1}×${l.res.gols2} ${l.jogo.time2}</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);">${l.palpite}</span>
+            <span class="palpite-chip ${cls}" style="font-size:11px;">${txt}</span>
+          </div>
+        </div>`;
+      });
+      html += '</div></div>';
+    });
+
+    container.innerHTML = html || '<div class="empty">Nenhum resultado para esse filtro.</div>';
+  } catch(e){
+    container.innerHTML = '<div class="empty">Erro ao carregar palpites.<br><small>'+e.message+'</small></div>';
+  }
 }
 
 window.__removerResultado = async (jogoId) => {
@@ -1937,11 +2625,153 @@ window.__setMeusView = (mode) => {
   meusViewMode = mode;
   document.getElementById('mvbDia').classList.toggle('active', mode==='dia');
   document.getElementById('mvbGrupo').classList.toggle('active', mode==='grupo');
-  carregarMeusPalpites();
+  document.getElementById('mvbDedoDuro').classList.toggle('active', mode==='dedoduro');
+
+  if(mode === 'dedoduro'){
+    document.getElementById('meusLoading').style.display = 'none';
+    document.getElementById('meusConteudo').style.display = 'none';
+    document.getElementById('dedoDuroConteudo').style.display = 'block';
+    popularSelectDedoDuro();
+  } else {
+    document.getElementById('dedoDuroConteudo').style.display = 'none';
+    carregarMeusPalpites();
+  }
+};
+
+/**
+ * Atalho do botão "Dedo Duro" na aba Ranking: vai pra aba Palpites já com
+ * a visão "Dedo Duro" ativa.
+ */
+window.__abrirDedoDuro = () => {
+  // Define o modo ANTES de trocar de aba: switchTab('meus') dispara
+  // carregarMeusPalpites() (async) — com meusViewMode já em 'dedoduro',
+  // ela retorna imediatamente sem buscar dados desnecessários do Firestore.
+  meusViewMode = 'dedoduro';
+  switchTab('meus');
+  window.__setMeusView('dedoduro');
+};
+
+/**
+ * Popula o <select> do "Dedo Duro" com jogos que já COMEÇARAM (em
+ * andamento ou finalizados) — jogos futuros nunca aparecem aqui, pra não
+ * vazar a estratégia de ninguém. Mais recente primeiro.
+ */
+function popularSelectDedoDuro(){
+  const sel = document.getElementById('selectJogoDedoDuro');
+  if(!sel) return;
+  const valorAtual = sel.value;
+  const jogosComecados = JOGOS_COPA
+    .filter(j => jogoComecou(j.utc))
+    .sort((a,b)=>b.utc.localeCompare(a.utc)); // mais recente primeiro
+
+  let html = '<option value="">Selecione um jogo...</option>';
+  jogosComecados.forEach(j => {
+    const res = resultados[j.id];
+    const aoVivo = (j.status === 'IN_PLAY' || j.status === 'PAUSED') && !(res && res.gols1 !== undefined);
+    let placarTxt;
+    if(res && res.gols1 !== undefined) placarTxt = `${res.gols1}×${res.gols2}`;
+    else if(aoVivo && j.score?.fullTime?.home != null) placarTxt = `${j.score.fullTime.home}×${j.score.fullTime.away} (ao vivo)`;
+    else placarTxt = '—';
+    html += `<option value="${j.id}">${j.time1} ${placarTxt} ${j.time2} — ${formatarData(j.utc)}</option>`;
+  });
+  sel.innerHTML = html;
+  if(jogosComecados.some(j => String(j.id) === valorAtual)) sel.value = valorAtual;
+  else if(jogosComecados.length) sel.value = String(jogosComecados[0].id); // seleciona o mais recente por padrão
+
+  renderDedoDuro();
+}
+
+/**
+ * Mostra o palpite de TODOS os jogadores pro jogo selecionado, comparado
+ * com o resultado (oficial ou ao vivo). Visível pra qualquer usuário —
+ * mas só pra jogos que já começaram (filtrado em popularSelectDedoDuro).
+ */
+window.renderDedoDuro = async () => {
+  const sel = document.getElementById('selectJogoDedoDuro');
+  const container = document.getElementById('dedoDuroList');
+  const jogoId = sel.value;
+  if(!jogoId){ container.innerHTML = ''; return; }
+
+  const jogo = JOGOS_COPA.find(j => String(j.id) === String(jogoId));
+  if(!jogo){ container.innerHTML = '<div class="empty">Jogo não encontrado.</div>'; return; }
+
+  // Segurança extra: nunca mostra palpites de jogo que ainda não começou
+  // (mesmo que alguém manipule o <select> via DevTools).
+  if(!jogoComecou(jogo.utc)){ container.innerHTML = '<div class="empty">Esse jogo ainda não começou.</div>'; return; }
+
+  const res = resultados[jogoId];
+  const aoVivo = (jogo.status === 'IN_PLAY' || jogo.status === 'PAUSED') && !(res && res.gols1 !== undefined);
+  const placarReal = (res && res.gols1 !== undefined)
+    ? `${res.gols1}×${res.gols2}`
+    : (aoVivo && jogo.score?.fullTime?.home != null)
+      ? `${jogo.score.fullTime.home}×${jogo.score.fullTime.away} (ao vivo)`
+      : null;
+
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando palpites...</div>';
+
+  try {
+    const usersSnap = await getDocs(collection(db,'users'));
+    const palpitesMap = await buscarTodosPalpites();
+
+    const linhas = [];
+    usersSnap.docs.forEach((ud) => {
+      const u = ud.data();
+      const pal = palpitesMap.get(ud.id) || {};
+      const p = pal[jogoId];
+      if(p && p.gols1 !== undefined){
+        let pts = null, categoria = 'pendente';
+        if(res && res.gols1 !== undefined){
+          pts = calcPts(p.gols1,p.gols2,res.gols1,res.gols2);
+          categoria = pts===25?'exato':pts>0?'vencedor':'errou';
+        }
+        linhas.push({name: u.name || 'Usuário', palpite: `${p.gols1}×${p.gols2}`, pts, categoria});
+      } else {
+        linhas.push({name: u.name || 'Usuário', palpite: '—', pts: null, categoria: 'sem', semPalpite: true});
+      }
+    });
+    // Resultado oficial: ordena por pontos (maior primeiro). Sem resultado ainda: ordena alfabético.
+    if(res && res.gols1 !== undefined){
+      linhas.sort((a,b)=> (b.pts??-1) - (a.pts??-1) || a.name.localeCompare(b.name));
+    } else {
+      linhas.sort((a,b)=> a.name.localeCompare(b.name));
+    }
+
+    let html = `<div style="font-size:13px;color:var(--muted);margin-bottom:10px;">
+      ${jogo.time1} ${placarReal ? `<strong style="color:var(--text);">${placarReal}</strong>` : 'vs'} ${jogo.time2}
+    </div>`;
+    html += '<div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);">';
+    linhas.forEach((l,i)=>{
+      let cls, txt;
+      if(l.semPalpite){ cls='chip-errado'; txt='Sem palpite'; }
+      else if(l.categoria==='pendente'){ cls='chip-vencedor'; txt='Aguardando'; }
+      else if(l.pts===25){ cls='chip-exato'; txt='Exato +25'; }
+      else if(l.pts===10){ cls='chip-vencedor'; txt='Vencedor +10'; }
+      else if(l.pts===7){ cls='chip-vencedor'; txt='Vencedor +7'; }
+      else if(l.pts===5){ cls='chip-vencedor'; txt='Empate +5'; }
+      else { cls='chip-errado'; txt='Errou'; }
+      const bg = i % 2 === 0 ? 'var(--s1)' : 'var(--s2)';
+      html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:${bg};${i<linhas.length-1?'border-bottom:1px solid var(--border);':''}">
+        <span style="font-size:13px;">${l.name}</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);">${l.palpite}</span>
+          <span class="palpite-chip ${cls}" style="font-size:11px;">${txt}</span>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+  } catch(e){
+    container.innerHTML = '<div class="empty">Erro ao carregar palpites.<br><small>'+e.message+'</small></div>';
+  }
 };
 
 async function carregarMeusPalpites(){
   if(!currentUser) return;
+  // Se o usuário já pediu pra ver "Dedo Duro" (ex: via abrirDedoDuro, que
+  // troca de aba e muda a view quase ao mesmo tempo), não faz sentido
+  // carregar/mostrar "Meus Palpites" — e pior, faria essa função
+  // sobrescrever a UI do Dedo Duro quando terminasse de carregar.
+  if(meusViewMode === 'dedoduro') return;
   document.getElementById('meusLoading').style.display = 'block';
   document.getElementById('meusConteudo').style.display = 'none';
   const snap = await getDoc(doc(db,'palpites',currentUser.uid));
@@ -2032,7 +2862,9 @@ async function carregarMeusPalpites(){
   document.getElementById('meusPendentes').textContent = pendentes;
   document.getElementById('meusPalpitesList').innerHTML = html || '<div class="empty">Nenhum palpite ainda.<br>Vá na aba Jogos e comece a palpitar!</div>';
   document.getElementById('meusLoading').style.display = 'none';
-  document.getElementById('meusConteudo').style.display = 'block';
+  // Re-checa: se enquanto isso o usuário foi pro Dedo Duro, não sobrescreve
+  // a UI dele mostrando "Meus Palpites" de volta.
+  if(meusViewMode !== 'dedoduro') document.getElementById('meusConteudo').style.display = 'block';
 }
 
 let _rankingCache = null;
@@ -2051,37 +2883,76 @@ async function carregarRanking(force=false){
     getDoc(doc(db,'resultados','jogos'))
   ]);
   const res = resSnap.exists() ? resSnap.data() : {};
-  // Busca todos os palpites em paralelo
-  const palpitesSnaps = await Promise.all(
-    usersSnap.docs.map(ud => getDoc(doc(db,'palpites',ud.id)))
-  );
+  // Busca todos os palpites em 1 query (em vez de N getDocs individuais)
+  const palpitesMap = await buscarTodosPalpites();
+
+  // Últimos 5 jogos FINALIZADOS (mais recente primeiro), usados pra
+  // calcular as "bolinhas de forma" de cada jogador.
+  const ultimosFinalizados = JOGOS_COPA
+    .filter(j => res[j.id] && res[j.id].gols1 !== undefined)
+    .sort((a,b) => b.utc.localeCompare(a.utc))
+    .slice(0, 5);
+
   const ranking = [];
-  usersSnap.docs.forEach((ud, i) => {
+  usersSnap.docs.forEach((ud) => {
     const u = ud.data();
-    const pSnap = palpitesSnaps[i];
-    const pal = pSnap.exists() ? pSnap.data() : {};
+    const pal = palpitesMap.get(ud.id) || {};
     let pts=0,acertos=0,exatos=0;
     for(const jid of Object.keys(pal)){
       const r=res[jid]; const p=pal[jid];
       if(r&&r.gols1!==undefined){ const pp=calcPts(p.gols1,p.gols2,r.gols1,r.gols2); pts+=pp; if(pp>0)acertos++; if(pp===25)exatos++; }
     }
-    ranking.push({uid:ud.id,name:u.name||'Usuário',photo:u.photo,pts,acertos,exatos,total:Object.keys(pal).length});
+    // Forma: últimos 5 jogos finalizados, mais recente primeiro.
+    // 'exato' (verde) = placar exato (+25), 'pontuou' (amarelo) = qualquer
+    // outro acerto (+5/+7/+10), 'errou' (cinza) = 0 ou sem palpite.
+    const forma = ultimosFinalizados.map(j => {
+      const r = res[j.id]; const p = pal[j.id];
+      if(!p || p.gols1 === undefined) return 'errou';
+      const pp = calcPts(p.gols1,p.gols2,r.gols1,r.gols2);
+      if(pp===25) return 'exato';
+      if(pp>0) return 'pontuou';
+      return 'errou';
+    });
+    ranking.push({uid:ud.id,name:u.name||'Usuário',photo:u.photo,pts,acertos,exatos,total:Object.keys(pal).length,forma});
   });
-  ranking.sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos);
 
-  // Compara com o snapshot de posições da última atualização de resultados
+  // Se há jogo ao vivo, ordena pelo total PROVISÓRIO (pts oficiais + pontos
+  // que cada um ganharia agora) — o ranking "sobe e desce" durante o jogo.
+  const temLive = _rankingProvisorio !== null;
+  if(temLive){
+    ranking.forEach(r => { r.ptsProvisorio = r.pts + (_rankingProvisorio[r.uid] || 0); });
+    ranking.sort((a,b)=>b.ptsProvisorio-a.ptsProvisorio||b.exatos-a.exatos);
+  } else {
+    ranking.sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos);
+  }
+
+  // Compara com o snapshot de posições da última atualização de resultados.
+  // Durante jogo ao vivo, usa o snapshot "pré-live" (posições oficiais no
+  // momento em que ESTE jogo começou) — evita misturar o efeito deste jogo
+  // com o de jogos anteriores já oficializados.
   let snapshot = {};
   let pontosAnteriores = {};
-  try {
-    const snapDoc = await getDoc(doc(db,'meta','rankingSnapshot'));
-    if(snapDoc.exists()){
-      const data = snapDoc.data();
-      snapshot = data.posicoes || {};
-      pontosAnteriores = data.pontos || {};
-    }
-  } catch(e){ /* sem snapshot ainda, tudo bem */ }
+  if(temLive && _snapshotPreLive){
+    snapshot = _snapshotPreLive;
+    // pontosAnteriores não se aplica durante live (coluna mostra "AO VIVO" em vez de "última rodada")
+  } else {
+    try {
+      const snapDoc = await getDoc(doc(db,'meta','rankingSnapshot'));
+      if(snapDoc.exists()){
+        const data = snapDoc.data();
+        snapshot = data.posicoes || {};
+        pontosAnteriores = data.pontos || {};
+      }
+    } catch(e){ /* sem snapshot ainda, tudo bem */ }
+  }
 
   document.getElementById('totalParticipantes').textContent = ranking.length+' jogador'+(ranking.length!==1?'es':'');
+  const liveBanner = document.getElementById('rankingLiveBanner');
+  if(liveBanner){
+    liveBanner.innerHTML = temLive
+      ? `<div class="rank-live-banner"><span class="live-dot"></span> Ranking provisório — atualizando ao vivo conforme o placar do jogo em andamento</div>`
+      : '';
+  }
   let html='';
   ranking.forEach((r,i)=>{
     const ini = r.name.split(' ').map(n=>n[0]).join('').slice(0,2);
@@ -2090,31 +2961,56 @@ async function carregarRanking(force=false){
     let setaHtml = '';
     if(posAnterior !== undefined){
       const diff = posAnterior - i; // positivo = subiu, negativo = desceu
-      if(diff > 0) setaHtml = `<span class="rank-arrow up" title="Subiu ${diff} posição(ões)">▲</span>`;
-      else if(diff < 0) setaHtml = `<span class="rank-arrow down" title="Desceu ${-diff} posição(ões)">▼</span>`;
-      else setaHtml = `<span class="rank-arrow same" title="Manteve a posição">–</span>`;
+      if(diff > 0) setaHtml = `<div class="rank-seta-wrap"><span class="rank-arrow up" title="Subiu ${diff} posição(ões)">▲</span><span class="rank-seta-num up">${diff}</span></div>`;
+      else if(diff < 0) setaHtml = `<div class="rank-seta-wrap"><span class="rank-arrow down" title="Desceu ${-diff} posição(ões)">▼</span><span class="rank-seta-num down">${-diff}</span></div>`;
+      else setaHtml = `<div class="rank-seta-wrap"><span class="rank-arrow same" title="Manteve a posição">–</span></div>`;
     }
-    // Pontos ganhos na última rodada (diferença vs. snapshot anterior)
+    // Coluna ao lado de "total": mostra pontos ganhando AGORA (se há jogo
+    // ao vivo) ou os pontos da última rodada finalizada (caso contrário).
     let ultimaRodadaCol = '';
-    const ptsAntes = pontosAnteriores[r.uid];
-    if(ptsAntes !== undefined){
-      const ganho = r.pts - ptsAntes;
-      const valClass = ganho > 0 ? 'rank-ultima-val' : 'rank-ultima-val rank-ultima-zero';
+    if(temLive){
+      const extras = _rankingProvisorio[r.uid] || 0;
+      const valClass = extras > 0 ? 'rank-ultima-val rank-live-pts' : 'rank-ultima-val rank-ultima-zero';
       ultimaRodadaCol = `<div class="rank-col">
-        <div class="rank-col-label">última rodada</div>
-        <div class="${valClass}">+${ganho}</div>
+        <div class="rank-col-label rank-live-label"><span class="live-dot"></span> AO VIVO</div>
+        <div class="${valClass}" title="Provisório — pode mudar até o fim do jogo">+${extras}</div>
       </div>`;
+    } else {
+      const ptsAntes = pontosAnteriores[r.uid];
+      if(ptsAntes !== undefined){
+        const ganho = r.pts - ptsAntes;
+        const valClass = ganho > 0 ? 'rank-ultima-val' : 'rank-ultima-val rank-ultima-zero';
+        ultimaRodadaCol = `<div class="rank-col">
+          <div class="rank-col-label">última rodada</div>
+          <div class="${valClass}">+${ganho}</div>
+        </div>`;
+      }
     }
+    // Total: durante jogo ao vivo, mostra o total PROVISÓRIO em destaque
+    // (com indicação visual de que pode mudar); senão, o total oficial.
+    const totalExibido = temLive ? r.ptsProvisorio : r.pts;
+    const totalClass = 'rank-pts';
+    const totalTitle = temLive ? 'title="Posição provisória — pode mudar até o fim do jogo"' : '';
+    // Bolinhas de forma: últimos 5 jogos finalizados, mais recente à
+    // direita (ordem cronológica). r.forma vem ordenado mais-recente-primeiro,
+    // então invertemos pra exibir.
+    const formaHtml = r.forma.length
+      ? `<div class="rank-forma">${[...r.forma].reverse().map(f=>`<span class="forma-dot forma-${f}" title="${f==='exato'?'Placar exato':f==='pontuou'?'Pontuou':'Errou'}"></span>`).join('')}</div>`
+      : '';
     html+=`<div class="rank-item">
       <div class="rank-num">${medal}</div>
       ${setaHtml}
       <div class="rank-avatar">${r.photo?`<img src="${r.photo}" onerror="this.style.display='none'">`:ini}</div>
-      <div class="rank-info"><div class="rank-name">${r.name}</div><div class="rank-detail">${r.total} palpites · ${r.exatos} exatos</div></div>
+      <div class="rank-info">
+        <div class="rank-name">${r.name}</div>
+        <div class="rank-detail">${r.total} palpites · ${r.exatos} exatos</div>
+        ${formaHtml}
+      </div>
       <div class="rank-pts-wrap">
         ${ultimaRodadaCol}
         <div class="rank-col">
           <div class="rank-col-label">total</div>
-          <div class="rank-pts">${r.pts}</div>
+          <div class="${totalClass}" ${totalTitle}>${totalExibido}</div>
         </div>
       </div>
     </div>`;
@@ -2142,13 +3038,10 @@ async function salvarRankingSnapshot(){
       getDoc(doc(db,'resultados','jogos'))
     ]);
     const res = resSnap.exists() ? resSnap.data() : {};
-    const palpitesSnaps = await Promise.all(
-      usersSnap.docs.map(ud => getDoc(doc(db,'palpites',ud.id)))
-    );
+    const palpitesMap = await buscarTodosPalpites();
     const ranking = [];
-    usersSnap.docs.forEach((ud, i) => {
-      const pSnap = palpitesSnaps[i];
-      const pal = pSnap.exists() ? pSnap.data() : {};
+    usersSnap.docs.forEach((ud) => {
+      const pal = palpitesMap.get(ud.id) || {};
       let pts=0,exatos=0;
       for(const jid of Object.keys(pal)){
         const r=res[jid]; const p=pal[jid];
@@ -2160,11 +3053,363 @@ async function salvarRankingSnapshot(){
     const posicoes = {};
     const pontos = {};
     ranking.forEach((r,i)=>{ posicoes[r.uid] = i; pontos[r.uid] = r.pts; });
-    await setDoc(doc(db,'meta','rankingSnapshot'), {posicoes, pontos, atualizadoEm: new Date().toISOString()});
+    // Guarda os IDs dos jogos que já tinham resultado ANTES desta
+    // atualização — permite identificar quais jogos terminaram agora.
+    const jogosComResultado = Object.keys(res);
+    await setDoc(doc(db,'meta','rankingSnapshot'), {posicoes, pontos, jogosComResultado, atualizadoEm: new Date().toISOString()});
   } catch(e){
     console.error('Erro ao salvar snapshot do ranking:', e);
   }
 }
+
+/**
+ * Gera um resumo da rodada (top 5 do ranking + maiores altas/quedas de
+ * posição + quem fez pontos na última rodada) e abre o WhatsApp (wa.me)
+ * com o texto pré-preenchido pra compartilhar no grupo.
+ */
+window.__compartilharResumoWhatsApp = async () => {
+  if(!isAdmin()){ showToast('Sem permissão.'); return; }
+  const btn = document.getElementById('btnCompartilharResumo');
+  if(btn) btn.disabled = true;
+  // Abre a aba JÁ (síncrono, dentro do clique) — em navegadores mobile,
+  // window.open() chamado DEPOIS de qualquer `await` é bloqueado como
+  // popup. Preenchemos a URL final (wa.me) depois que os dados carregarem.
+  const win = window.open('about:blank', '_blank');
+  try {
+    const [usersSnap, resSnap, snapDoc] = await Promise.all([
+      getDocs(collection(db,'users')),
+      getDoc(doc(db,'resultados','jogos')),
+      getDoc(doc(db,'meta','rankingSnapshot'))
+    ]);
+    const res = resSnap.exists() ? resSnap.data() : {};
+    const snapshot = snapDoc.exists() ? snapDoc.data() : {};
+    const posicoesAntes = snapshot.posicoes || {};
+    const pontosAntes = snapshot.pontos || {};
+    const jogosAntes = new Set(snapshot.jogosComResultado || []);
+
+    // Identifica jogos que têm resultado AGORA mas não tinham no snapshot
+    // anterior — ou seja, terminaram desde a última atualização.
+    const jogosNovos = Object.keys(res).filter(jid => !jogosAntes.has(jid));
+    const nomesJogosNovos = jogosNovos
+      .map(jid => JOGOS_COPA.find(j => String(j.id) === String(jid)))
+      .filter(Boolean)
+      .map(j => {
+        const r = res[j.id];
+        return `${j.time1} ${r.gols1}×${r.gols2} ${j.time2}`;
+      });
+
+    const palpitesMap = await buscarTodosPalpites();
+
+    const ranking = [];
+    usersSnap.docs.forEach((ud) => {
+      const u = ud.data();
+      const pal = palpitesMap.get(ud.id) || {};
+      let pts=0, exatos=0;
+      for(const jid of Object.keys(pal)){
+        const r = res[jid]; const p = pal[jid];
+        if(r && r.gols1 !== undefined){
+          const pp = calcPts(p.gols1,p.gols2,r.gols1,r.gols2);
+          pts += pp; if(pp===25) exatos++;
+        }
+      }
+      ranking.push({uid: ud.id, name: u.name || 'Usuário', pts, exatos});
+    });
+    ranking.sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos);
+
+    // Monta o texto
+    const linhas = [];
+    linhas.push('*RANKING DO BOLAO - ATUALIZADO*');
+    if(nomesJogosNovos.length){
+      linhas.push('');
+      if(nomesJogosNovos.length === 1){
+        linhas.push(`Fim de jogo: *${nomesJogosNovos[0]}*`);
+      } else {
+        linhas.push('Jogos finalizados:');
+        nomesJogosNovos.forEach(n => linhas.push(`- ${n}`));
+      }
+    }
+    linhas.push('');
+
+    // Top 5
+    ranking.slice(0,5).forEach((r,i)=>{
+      const posAntes = posicoesAntes[r.uid];
+      let seta = '';
+      if(posAntes !== undefined){
+        const diff = posAntes - i;
+        if(diff > 0) seta = ` (+${diff})`;
+        else if(diff < 0) seta = ` (-${-diff})`;
+      }
+      linhas.push(`${i+1}. ${r.name} - *${r.pts}pts*${seta}`);
+    });
+
+    // Destaques da última rodada (quem ganhou pontos)
+    const ganhos = ranking
+      .map(r => ({...r, ganho: r.pts - (pontosAntes[r.uid] ?? r.pts)}))
+      .filter(r => r.ganho > 0)
+      .sort((a,b)=>b.ganho-a.ganho);
+
+    if(ganhos.length){
+      linhas.push('');
+      linhas.push('*Quem pontuou na ultima rodada:*');
+      ganhos.slice(0,8).forEach(r=>{
+        linhas.push(`- ${r.name}: +${r.ganho}pts`);
+      });
+    }
+
+    // Maiores subidas de posição
+    const subidas = ranking
+      .map((r,i) => ({name:r.name, diff: (posicoesAntes[r.uid] ?? i) - i}))
+      .filter(r => r.diff > 0)
+      .sort((a,b)=>b.diff-a.diff);
+
+    if(subidas.length){
+      linhas.push('');
+      linhas.push('*Maiores subidas no ranking:*');
+      subidas.slice(0,3).forEach(r=>{
+        linhas.push(`- ${r.name}: subiu ${r.diff} posicao(oes)`);
+      });
+    }
+
+    linhas.push('');
+    linhas.push('Confira o ranking completo e seus palpites:');
+    linhas.push('https://bolao-copa-2026-71761.web.app');
+
+    const texto = encodeURIComponent(linhas.join('\n'));
+    const url = `https://wa.me/?text=${texto}`;
+    if(win && !win.closed) win.location.href = url;
+    else window.open(url, '_blank'); // fallback se o popup foi bloqueado mesmo assim
+  } catch(e){
+    if(win && !win.closed) win.close();
+    showToast('Erro ao gerar resumo: '+e.message);
+  } finally {
+    if(btn) btn.disabled = false;
+  }
+};
+
+/**
+ * Gera uma mensagem lembrando a galera dos jogos de HOJE e pedindo pra
+ * colocar/conferir os palpites antes do horário de cada jogo. Abre o
+ * WhatsApp (wa.me) com o texto pré-preenchido.
+ */
+window.__compartilharLembretePalpites = () => {
+  if(!isAdmin()){ showToast('Sem permissão.'); return; }
+  const btn = document.getElementById('btnLembretePalpites');
+  if(btn) btn.disabled = true;
+  try {
+    const hojeChave = formatarDiaChave(new Date().toISOString());
+    const jogosHoje = JOGOS_COPA
+      .filter(j => formatarDiaChave(j.utc) === hojeChave)
+      .sort((a,b)=>a.utc.localeCompare(b.utc));
+
+    const linhas = [];
+
+    if(jogosHoje.length === 0){
+      linhas.push('*BOLAO DA COPA - SEM JOGOS HOJE*');
+      linhas.push('');
+      linhas.push('Hoje nao tem jogo da Copa, mas aproveita pra conferir/ajustar seus palpites dos proximos jogos!');
+    } else {
+      linhas.push('*BOLAO DA COPA - JOGOS DE HOJE*');
+      linhas.push('');
+      jogosHoje.forEach(j => {
+        // formatarHora retorna HTML com <span>, então extraímos só o texto da hora
+        const horaLocal = formatarHora(j.utc).replace(/<[^>]*>/g,'').trim();
+        const horaBR = new Date(j.utc).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'America/Sao_Paulo'});
+        const mesmoFuso = tzLabel(userTZ) === 'BRA';
+        const horaTexto = mesmoFuso ? horaLocal : `${horaLocal} / ${horaBR} (Brasilia)`;
+        linhas.push(`${horaTexto} - ${j.time1} x ${j.time2}`);
+      });
+      linhas.push('');
+      linhas.push('Nao esquece de colocar (ou confirmar) seu palpite antes do jogo comecar!');
+    }
+
+    linhas.push('');
+    linhas.push('Coloque seus palpites:');
+    linhas.push('https://bolao-copa-2026-71761.web.app');
+
+    const texto = encodeURIComponent(linhas.join('\n'));
+    window.open(`https://wa.me/?text=${texto}`, '_blank');
+  } catch(e){
+    showToast('Erro ao gerar lembrete: '+e.message);
+  } finally {
+    if(btn) btn.disabled = false;
+  }
+};
+
+/**
+ * Gera um resumo dos jogos de ONTEM (data local do admin): quem mais
+ * pontuou, quem acertou o placar exato, maiores subidas/quedas no ranking
+ * (comparando posição antes/depois dos jogos de ontem), o jogo com menos
+ * acertos, e quem mais acertou (contagem de palpites corretos). Abre o
+ * WhatsApp (wa.me) com o texto pré-preenchido.
+ */
+window.__compartilharResumoOntem = async () => {
+  if(!isAdmin()){ showToast('Sem permissão.'); return; }
+  const btn = document.getElementById('btnResumoOntem');
+  if(btn) btn.disabled = true;
+  // Abre a aba JÁ (síncrono) — evita bloqueio de popup no mobile, já que
+  // o resto desta função usa await antes de montar a URL final.
+  const win = window.open('about:blank', '_blank');
+  try {
+    const agora = new Date();
+    const ontemDate = new Date(agora);
+    ontemDate.setDate(agora.getDate() - 1);
+    const ontemChave = formatarDiaChave(ontemDate.toISOString());
+    const dataLabel = ontemDate.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
+
+    // Jogos de ontem que já têm resultado oficial
+    const jogosOntem = JOGOS_COPA.filter(j =>
+      formatarDiaChave(j.utc) === ontemChave &&
+      resultados[j.id] && resultados[j.id].gols1 !== undefined
+    );
+
+    const linhas = [];
+    linhas.push(`*RESUMO DE ONTEM - ${dataLabel}*`);
+
+    if(jogosOntem.length === 0){
+      linhas.push('');
+      linhas.push('Nao teve jogo finalizado ontem.');
+      linhas.push('');
+      linhas.push('Confira o ranking completo:');
+      linhas.push('https://bolao-copa-2026-71761.web.app');
+      const url = `https://wa.me/?text=${encodeURIComponent(linhas.join('\n'))}`;
+      if(win && !win.closed) win.location.href = url; else window.open(url,'_blank');
+      return;
+    }
+
+    linhas.push('');
+    linhas.push('Jogos de ontem:');
+    jogosOntem.forEach(j => {
+      const r = resultados[j.id];
+      linhas.push(`- ${j.time1} ${r.gols1}x${r.gols2} ${j.time2}`);
+    });
+
+    const usersSnap = await getDocs(collection(db,'users'));
+    const palpitesMap = await buscarTodosPalpites();
+
+    // resAntes = resultados oficiais SEM os jogos de ontem — usado pra
+    // calcular a posição no ranking "antes" e comparar com "agora".
+    const resAntes = {...resultados};
+    jogosOntem.forEach(j => delete resAntes[j.id]);
+
+    const dados = [];
+    usersSnap.docs.forEach(ud => {
+      const u = ud.data();
+      const pal = palpitesMap.get(ud.id) || {};
+
+      // Pontos/acertos só dos jogos de ontem
+      let pontosOntem = 0, exatosOntem = [], acertosOntem = 0;
+      jogosOntem.forEach(j => {
+        const p = pal[j.id]; const r = resultados[j.id];
+        if(p && p.gols1 !== undefined){
+          const pp = calcPts(p.gols1,p.gols2,r.gols1,r.gols2);
+          pontosOntem += pp;
+          if(pp===25) exatosOntem.push(j);
+          if(pp>0) acertosOntem++;
+        }
+      });
+
+      // Pontos totais ANTES (sem jogos de ontem) e AGORA (com tudo) — pra
+      // calcular a mudança de posição no ranking.
+      let ptsAntes=0, ptsAgora=0;
+      for(const jid of Object.keys(pal)){
+        const p = pal[jid];
+        const rAntes = resAntes[jid]; const rAgora = resultados[jid];
+        if(rAntes && rAntes.gols1!==undefined) ptsAntes += calcPts(p.gols1,p.gols2,rAntes.gols1,rAntes.gols2);
+        if(rAgora && rAgora.gols1!==undefined) ptsAgora += calcPts(p.gols1,p.gols2,rAgora.gols1,rAgora.gols2);
+      }
+
+      dados.push({uid: ud.id, name: u.name||'Usuario', pontosOntem, exatosOntem, acertosOntem, ptsAntes, ptsAgora});
+    });
+
+    // Posições antes/depois (índice no ranking ordenado por pontos)
+    const ordemAntes = [...dados].sort((a,b)=>b.ptsAntes-a.ptsAntes);
+    const ordemAgora = [...dados].sort((a,b)=>b.ptsAgora-a.ptsAgora);
+    const posAntes = {}; ordemAntes.forEach((d,i)=>{ posAntes[d.uid]=i; });
+    const posAgora = {}; ordemAgora.forEach((d,i)=>{ posAgora[d.uid]=i; });
+    dados.forEach(d => { d.diffPos = posAntes[d.uid] - posAgora[d.uid]; }); // positivo = subiu
+
+    // Quem mais pontuou ontem
+    const maisPontuaram = dados.filter(d=>d.pontosOntem>0).sort((a,b)=>b.pontosOntem-a.pontosOntem);
+    if(maisPontuaram.length){
+      linhas.push('');
+      linhas.push('*Quem mais pontuou ontem:*');
+      maisPontuaram.slice(0,5).forEach((d,i)=>{
+        linhas.push(`${i+1}. ${d.name} - +${d.pontosOntem}pts`);
+      });
+    }
+
+    // Quem acertou o placar exato (e em qual jogo)
+    if(maisPontuaram.some(d=>d.exatosOntem.length>0)){
+      linhas.push('');
+      linhas.push('*Acertou o placar exato:*');
+      dados.filter(d=>d.exatosOntem.length>0).forEach(d=>{
+        d.exatosOntem.forEach(j=>{
+          const r = resultados[j.id];
+          linhas.push(`- ${d.name} (${j.time1} ${r.gols1}x${r.gols2} ${j.time2})`);
+        });
+      });
+    }
+
+    // Maiores subidas/quedas no ranking
+    const subidas = dados.filter(d=>d.diffPos>0).sort((a,b)=>b.diffPos-a.diffPos);
+    if(subidas.length){
+      linhas.push('');
+      linhas.push('*Maiores subidas no ranking:*');
+      subidas.slice(0,3).forEach(d=>linhas.push(`- ${d.name}: subiu ${d.diffPos} posicao(oes)`));
+    }
+    const quedas = dados.filter(d=>d.diffPos<0).sort((a,b)=>a.diffPos-b.diffPos);
+    if(quedas.length){
+      linhas.push('');
+      linhas.push('*Maiores quedas no ranking:*');
+      quedas.slice(0,3).forEach(d=>linhas.push(`- ${d.name}: desceu ${-d.diffPos} posicao(oes)`));
+    }
+
+    // Jogo com menos acertos (menor % de palpites que pontuaram)
+    const statsJogos = jogosOntem.map(j=>{
+      const r = resultados[j.id];
+      let acertos=0, total=0;
+      dados.forEach(d=>{
+        const p = (palpitesMap.get(d.uid)||{})[j.id];
+        if(p && p.gols1!==undefined){
+          total++;
+          if(calcPts(p.gols1,p.gols2,r.gols1,r.gols2)>0) acertos++;
+        }
+      });
+      const pct = total>0 ? Math.round((acertos/total)*100) : 0;
+      return {jogo:j, acertos, total, pct};
+    });
+    if(statsJogos.length){
+      statsJogos.sort((a,b)=>a.pct-b.pct);
+      const pior = statsJogos[0];
+      const r = resultados[pior.jogo.id];
+      linhas.push('');
+      linhas.push('*Jogo com menos acertos:*');
+      linhas.push(`${pior.jogo.time1} ${r.gols1}x${r.gols2} ${pior.jogo.time2} - ${pior.acertos} de ${pior.total} acertaram (${pior.pct}%)`);
+    }
+
+    // Quem mais acertou ontem (contagem de palpites corretos, não pontos)
+    const maisAcertos = dados.filter(d=>d.acertosOntem>0).sort((a,b)=>b.acertosOntem-a.acertosOntem);
+    if(maisAcertos.length){
+      linhas.push('');
+      linhas.push('*Quem mais acertou ontem:*');
+      maisAcertos.slice(0,5).forEach(d=>{
+        linhas.push(`- ${d.name}: ${d.acertosOntem} de ${jogosOntem.length} acerto(s)`);
+      });
+    }
+
+    linhas.push('');
+    linhas.push('Confira o ranking completo:');
+    linhas.push('https://bolao-copa-2026-71761.web.app');
+
+    const url = `https://wa.me/?text=${encodeURIComponent(linhas.join('\n'))}`;
+    if(win && !win.closed) win.location.href = url; else window.open(url,'_blank');
+  } catch(e){
+    if(win && !win.closed) win.close();
+    showToast('Erro ao gerar resumo: '+e.message);
+  } finally {
+    if(btn) btn.disabled = false;
+  }
+};
 
 // RESENHA
 function ouvirResenha(){
@@ -2228,6 +3473,21 @@ function calcPts(p1,p2,r1,r2){
   if(pv===0) return 5;
   if((p1-p2)===(r1-r2)) return 10;
   return 7;
+}
+
+/**
+ * Busca os palpites de TODOS os usuários em uma única query
+ * (getDocs(collection(db,'palpites'))), em vez de uma getDoc por usuário.
+ * Com muitos usuários, N getDocs individuais ficam enfileirados pelo limite
+ * de conexões simultâneas do navegador e deixam o carregamento lento.
+ * Retorna um Map<uid, dadosDoPalpite> (objeto vazio {} se o usuário não
+ * tiver documento de palpites ainda).
+ */
+async function buscarTodosPalpites(){
+  const snap = await getDocs(collection(db,'palpites'));
+  const mapa = new Map();
+  snap.docs.forEach(d => mapa.set(d.id, d.data()));
+  return mapa;
 }
 
 function showToast(msg){
