@@ -1,0 +1,39 @@
+name: Deploy Bolão Copa 2026
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # permite rodar manualmente pelo GitHub pelo celular
+
+jobs:
+  deploy-worker:
+    name: Deploy Cloudflare Worker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          workingDirectory: '.'
+          secrets: |
+            GROQ_API_KEY
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+
+  deploy-firebase:
+    name: Deploy Firebase Hosting
+    runs-on: ubuntu-latest
+    needs: deploy-worker # só faz deploy do app depois do worker estar no ar
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: live
+          projectId: bolao-copa-2026-71761
