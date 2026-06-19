@@ -1,0 +1,7 @@
+name = "sweet-recipe-d770"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "BOLAO_KV"
+id = "014887b774ee42f1a135af1faa3186ac"
