@@ -3655,13 +3655,13 @@ window.__compartilharResumoWhatsApp = async () => {
 
             if(feedIA){
               linhas.push('');
-              linhas.push('*📲 FEED DA RODADA (IA):*');
+              linhas.push('*📲 FEED DA RODADA:*');
               feedIA.split('\n').filter(l=>l.trim()).forEach(l=>linhas.push(l.trim()));
               iaGerou = true;
             }
             if(replayIA && replayDados.temReplay && replayDados.ousados.length){
               linhas.push('');
-              linhas.push('*🎬 REPLAY DE PALPITES (IA):*');
+              linhas.push('*🎬 REPLAY DE PALPITES:*');
               replayIA.split('\n').filter(l=>l.trim()).forEach(l=>linhas.push(l.trim()));
             }
           }
