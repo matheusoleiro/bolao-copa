@@ -209,6 +209,33 @@
   }
   .rank-col-label.rank-live-label{color:var(--red);display:flex;align-items:center;gap:3px;justify-content:center;}
 
+  /* Destaque "esse sou eu" no ranking — fundo dourado/amarelo suave */
+  .rank-item-mine{
+    background:var(--gold-dim);
+    border:1px solid rgba(240,180,41,0.35);
+    border-radius:10px;
+    padding:12px 10px;
+    margin:2px 0;
+  }
+  .rank-mine-tag{
+    font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;
+    background:var(--gold);color:#1a1400;border-radius:5px;padding:2px 6px;
+    vertical-align:middle;margin-left:4px;
+  }
+
+  /* Diferença pro líder, exibida junto com "X palpites · Y exatos" */
+  .rank-dif-lider{color:var(--text3);font-weight:500;}
+  .rank-dif-lider-line{font-size:12px;margin-top:2px;}
+  .rank-dif-lider-top{color:var(--gold);font-weight:700;}
+
+  /* Painel "posição ao longo da Copa" — bolinhas verticais por jogo */
+
+  .hist-dot-wrap{position:relative;width:10px;flex-shrink:0;}
+  .hist-dot{position:absolute;left:0;width:10px;height:10px;border-radius:50%;transition:top 0.2s;}
+  .hist-dot-1{background:var(--gold);box-shadow:0 0 0 2px rgba(240,180,41,0.25);}
+  .hist-dot-top3{background:var(--green);}
+  .hist-dot-rest{background:var(--text3);}
+
   /* ── RESENHA ── */
   .resenha-box{background:#111B21;border-radius:var(--r);border:1px solid rgba(255,255,255,0.06);overflow:hidden;margin-bottom:12px;}
   .resenha-header{background:#202C33;padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.06);}
@@ -358,7 +385,7 @@ function _callWhenReady(fn, args){
  'showUserMenu','fecharMenu','fazerLogout','copiarLinkMenu','switchTabMenu','abrirWhatsApp',
  'abrirRenomear','fecharModal','salvarNome','salvarNomeBoasVindas',
  'salvarJogo','salvarTodosPalpites','salvarResultado','editarResultado','removerResultado',
- 'setView','setAdminView','setMeusView','setClassifView','buscarResultadosAPI','enviarMsg','copiarLink','toggleGhostMode','compartilharResumoWhatsApp','compartilharLembretePalpites','excluirUsuario','abrirDedoDuro','compartilharResumoOntem','recalcularSnapshot'].forEach(fn=>{
+ 'setView','setAdminView','setMeusView','setClassifView','buscarResultadosAPI','enviarMsg','copiarLink','toggleGhostMode','compartilharResumoWhatsApp','compartilharLembretePalpites','excluirUsuario','abrirDedoDuro','compartilharResumoOntem','setRankView','renderEvolucaoPosicao'].forEach(fn=>{
   window[fn] = (...args) => _callWhenReady(fn, args);
 });
 function switchTab(tab){
@@ -481,13 +508,35 @@ window.switchTab = switchTab;
         👀 Dedo Duro — veja o palpite de todo mundo
       </button>
 
-      <div class="card">
-        <div class="card-header">
-          <div class="section-title">Ranking</div>
-          <span class="badge badge-green" id="totalParticipantes">0 jogadores</span>
+      <div class="view-toggle">
+        <div class="view-btn active" id="vbRankLista" onclick="setRankView('lista')">Ranking</div>
+        <div class="view-btn" id="vbRankEvolucao" onclick="setRankView('evolucao')">Evolução</div>
+      </div>
+
+      <!-- RANKING: LISTA -->
+      <div id="rankViewLista">
+        <div class="card">
+          <div class="card-header">
+            <div class="section-title">Ranking</div>
+            <span class="badge badge-green" id="totalParticipantes">0 jogadores</span>
+          </div>
+          <div id="rankingLiveBanner"></div>
+          <div id="rankingList"><div class="loading"><div class="spinner"></div>Calculando...</div></div>
         </div>
-        <div id="rankingLiveBanner"></div>
-        <div id="rankingList"><div class="loading"><div class="spinner"></div>Calculando...</div></div>
+      </div>
+
+      <!-- RANKING: EVOLUÇÃO (gráfico de posição por jogo, 1 pessoa por vez) -->
+      <div id="rankViewEvolucao" style="display:none">
+        <div class="card">
+          <div class="card-header">
+            <div class="section-title">Evolução</div>
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Acompanhe a posição de cada jogador no ranking, jogo a jogo, desde o início da Copa.</p>
+          <select id="selectJogadorEvolucao" onchange="renderEvolucaoPosicao()" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:14px;">
+            <option value="">Selecione um jogador...</option>
+          </select>
+          <div id="evolucaoPosicaoConteudo"></div>
+        </div>
       </div>
 
       <!-- RESENHA -->
@@ -648,16 +697,6 @@ window.switchTab = switchTab;
         <input id="filtroNomeUsuarios" type="text" placeholder="Buscar por nome..." oninput="renderListaUsuarios()" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:12px;"/>
         <div id="listaUsuarios"></div>
       </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="section-title">Corrigir snapshot do ranking</div>
-          <span class="badge badge-blue">Só você vê</span>
-        </div>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Se a coluna "última rodada" e as setinhas ▲▼ estiverem mostrando +0 / "manteve a posição" pra todo mundo (snapshot corrompido), marque abaixo o(s) jogo(s) que devem contar como "última rodada" e recalcule. Funciona direto do celular — sem precisar de console.</p>
-        <div id="snapshotCorrecaoList" style="margin-bottom:12px;"></div>
-        <button onclick="recalcularSnapshot()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Recalcular snapshot</button>
-      </div>
     </div>
 
   </div>
@@ -798,7 +837,7 @@ let ghostMode = localStorage.getItem('bolao_ghost_mode') === 'true';
 // usado pra só recalcular o ranking provisório quando o placar mudar de fato.
 let _ultimoPlacarLive = {};
 let _rankingProvisorio = null; // {uid: ptsExtras} ou null se não há jogo ao vivo c/ palpites
-let _snapshotPreLive = null; // {uid: posicao} — posições oficiais no momento em que o jogo ao vivo atual começou (sem nenhum extra provisório)
+let _rankingProvisorioOrdenado = null; // ranking [{uid,name,pts}] ordenado, usado só pra detectar mudanças de posição (toasts de zoeira ao vivo)
 let _jogosOficializados = new Set(); // IDs de jogos já oficializados automaticamente nesta sessão (evita reprocessar)
 
 const WORKER_URL = 'https://sweet-recipe-d770.matheusoleiro.workers.dev';
@@ -1289,6 +1328,357 @@ function extrairResultadosFinalizados(jogosCopa){
   return novosRes;
 }
 
+/**
+ * Calcula, pra cada usuário, os pontos/exatos ATUAIS e os pontos/exatos
+ * "ANTES" do jogo mais recente que já tem resultado ("última rodada" =
+ * UM jogo individual, o último a ser finalizado — máximo +25).
+ *
+ * Usado pelo ranking (setinhas ▲▼ e coluna "última rodada") E pelo resumo
+ * do WhatsApp — extraído como função PURA pra garantir que os dois fiquem
+ * sempre consistentes, sem nenhum estado persistido (substituiu o antigo
+ * `meta/rankingSnapshot`, que podia corromper/desincronizar com chamadas
+ * repetidas de auto-oficialização).
+ *
+ * @param {Array} jogosCopa - JOGOS_COPA
+ * @param {Object} res - resultados/jogos ({jogoId: {gols1,gols2}})
+ * @param {Map<string,object>} usersData - Map uid -> dados do usuário (com .name, .photo)
+ * @param {Map<string,object>} palpitesMap - Map uid -> palpites ({jogoId: {gols1,gols2}})
+ * @returns {{
+ *   ranking: Array<{uid,name,photo,pts,acertos,exatos,ptsAntes,exatosAntes,total}>,
+ *   temUltimaRodada: boolean,
+ *   nomesUltimaRodada: string[]
+ * }}
+ */
+function calcularUltimaRodada(jogosCopa, res, usersData, palpitesMap){
+  const finalizados = jogosCopa
+    .filter(j => res[j.id] && res[j.id].gols1 !== undefined)
+    .sort((a,b) => b.utc.localeCompare(a.utc)); // mais recente primeiro
+
+  let resAntes = res;
+  let temUltimaRodada = false;
+  let nomesUltimaRodada = [];
+  if(finalizados.length){
+    const ultimoJogo = finalizados[0];
+    resAntes = {...res};
+    delete resAntes[ultimoJogo.id];
+    temUltimaRodada = true;
+    const r = res[ultimoJogo.id];
+    nomesUltimaRodada = [`${ultimoJogo.time1} ${r.gols1}×${r.gols2} ${ultimoJogo.time2}`];
+  }
+
+  const ranking = [];
+  usersData.forEach((u, uid) => {
+    const pal = palpitesMap.get(uid) || {};
+    let pts=0,acertos=0,exatos=0,ptsAntes=0,exatosAntes=0;
+    for(const jid of Object.keys(pal)){
+      const r=res[jid]; const p=pal[jid];
+      if(r&&r.gols1!==undefined){ const pp=calcPts(p.gols1,p.gols2,r.gols1,r.gols2); pts+=pp; if(pp>0)acertos++; if(pp===25)exatos++; }
+      const ra=resAntes[jid];
+      if(ra&&ra.gols1!==undefined){ const ppa=calcPts(p.gols1,p.gols2,ra.gols1,ra.gols2); ptsAntes+=ppa; if(ppa===25)exatosAntes++; }
+    }
+    ranking.push({uid, name: u.name||'Usuário', photo: u.photo, pts, acertos, exatos, ptsAntes, exatosAntes, total: Object.keys(pal).length});
+  });
+
+  return { ranking, temUltimaRodada, nomesUltimaRodada };
+}
+
+/**
+ * Calcula a posição de cada usuário no ranking APÓS cada jogo oficializado
+ * (em ordem cronológica) — usado pra desenhar o histórico "sua posição ao
+ * longo da Copa" (1º, 2º, 3º...) quando a pessoa clica no nome no ranking.
+ *
+ * Só considera jogos com resultado OFICIAL (resultados/jogos) — não inclui
+ * oscilações de jogo ao vivo (ranking provisório), por simplicidade e
+ * estabilidade: o histórico é sempre o mesmo independente de quando for
+ * consultado.
+ *
+ * Função PURA: sem Firestore, sem estado global — só itera os jogos
+ * finalizados em ordem e recalcula o ranking acumulado a cada passo.
+ *
+ * @param {Array} jogosCopa - JOGOS_COPA
+ * @param {Object} res - resultados/jogos ({jogoId: {gols1,gols2}})
+ * @param {Map<string,object>} usersData - Map uid -> dados do usuário (com .name)
+ * @param {Map<string,object>} palpitesMap - Map uid -> palpites ({jogoId: {gols1,gols2}})
+ * @returns {Map<string, Array<{jogoId, utc, time1, time2, posicao, pts}>>}
+ *   Map uid -> histórico ordenado cronologicamente (posicao é 0-indexed).
+ */
+function calcularHistoricoPosicoes(jogosCopa, res, usersData, palpitesMap){
+  const finalizados = jogosCopa
+    .filter(j => res[j.id] && res[j.id].gols1 !== undefined)
+    .sort((a,b) => a.utc.localeCompare(b.utc)); // mais antigo primeiro
+
+  const historico = new Map();
+  usersData.forEach((u, uid) => historico.set(uid, []));
+
+  // Pontuação acumulada de cada usuário, recalculada incrementalmente.
+  const acumulado = new Map();
+  usersData.forEach((u, uid) => acumulado.set(uid, 0));
+
+  for(const jogo of finalizados){
+    const r = res[jogo.id];
+    // Soma os pontos deste jogo pra quem tinha palpite nele.
+    usersData.forEach((u, uid) => {
+      const pal = palpitesMap.get(uid) || {};
+      const p = pal[jogo.id];
+      if(p && p.gols1 !== undefined){
+        acumulado.set(uid, acumulado.get(uid) + calcPts(p.gols1,p.gols2,r.gols1,r.gols2));
+      }
+    });
+
+    // Ranking acumulado ATÉ este jogo (desempate: maior pts primeiro;
+    // sem critério de exatos aqui, pois não rastreamos exatos acumulados
+    // separadamente — simplificação aceitável pro histórico visual).
+    const ordenado = [...acumulado.entries()].sort((a,b)=>b[1]-a[1]);
+    const posicaoPorUid = new Map();
+    ordenado.forEach(([uid], i) => posicaoPorUid.set(uid, i));
+
+    usersData.forEach((u, uid) => {
+      historico.get(uid).push({
+        jogoId: jogo.id,
+        utc: jogo.utc,
+        time1: jogo.time1,
+        time2: jogo.time2,
+        posicao: posicaoPorUid.get(uid),
+        pts: acumulado.get(uid),
+      });
+    });
+  }
+
+  return historico;
+}
+
+/**
+ * "Replay de palpites" — pra UM jogo finalizado, mostra o que a MAIORIA
+ * apostou (vitória de um time, empate, ou vitória do outro) vs quem ficou
+ * na MINORIA ("ousado") apostando contra a maioria, ganhando ou perdendo.
+ *
+ * "Ousado" aqui = a maioria escolheu um vencedor e a pessoa apostou no
+ * adversário — não conta quem apostou empate quando a maioria cravou um
+ * vencedor (ou vice-versa), só o caso "oposto direto" pedido pelo usuário.
+ *
+ * Função PURA: sem Firestore, sem aleatoriedade — só texto determinístico.
+ * A escolha de qual frase de abertura usar é feita por quem CHAMA essa
+ * função (gerarFeedSocial/compartilharResumoWhatsApp), não aqui.
+ *
+ * @param {object} jogo - um item de JOGOS_COPA (precisa de id, time1, time2)
+ * @param {Object} res - resultados/jogos
+ * @param {Map<string,object>} usersData - Map uid -> {name}
+ * @param {Map<string,object>} palpitesMap - Map uid -> palpites
+ * @returns {{
+ *   temReplay: boolean,
+ *   resultadoReal: 'time1'|'empate'|'time2',
+ *   percentual: {time1:number, empate:number, time2:number},
+ *   maioriaLabel: string,
+ *   ousados: Array<{name, palpiteLabel, acertou:boolean}>
+ * }}
+ */
+function gerarReplayPalpites(jogo, res, usersData, palpitesMap){
+  const r = res[jogo.id];
+  if(!r || r.gols1 === undefined) return { temReplay:false };
+
+  const classificar = (g1,g2) => g1>g2 ? 'time1' : g1<g2 ? 'time2' : 'empate';
+  const resultadoReal = classificar(r.gols1, r.gols2);
+
+  const contagem = { time1:0, empate:0, time2:0 };
+  const porUsuario = []; // {uid, classe}
+  usersData.forEach((u, uid) => {
+    const pal = palpitesMap.get(uid) || {};
+    const p = pal[jogo.id];
+    if(!p || p.gols1 === undefined) return;
+    const classe = classificar(p.gols1, p.gols2);
+    contagem[classe]++;
+    porUsuario.push({ uid, classe });
+  });
+
+  const totalPalpites = porUsuario.length;
+  if(totalPalpites === 0) return { temReplay:false };
+
+  const percentual = {
+    time1: Math.round(100 * contagem.time1 / totalPalpites),
+    empate: Math.round(100 * contagem.empate / totalPalpites),
+    time2: Math.round(100 * contagem.time2 / totalPalpites),
+  };
+
+  // Classe majoritária = a que mais gente escolheu (desempate: time1 > empate > time2, arbitrário mas estável)
+  let maioriaClasse = 'time1';
+  if(contagem.empate > contagem[maioriaClasse]) maioriaClasse = 'empate';
+  if(contagem.time2 > contagem[maioriaClasse]) maioriaClasse = 'time2';
+
+  const labelDe = (classe) => classe==='time1' ? `vitória do ${jogo.time1}` : classe==='time2' ? `vitória do ${jogo.time2}` : 'empate';
+  const maioriaLabel = labelDe(maioriaClasse);
+
+  // "Ousados" = apostaram na classe OPOSTA à maioria, mas só quando a
+  // maioria escolheu um VENCEDOR (não empate) e a minoria escolheu o
+  // OUTRO time vencendo — não inclui quem apostou empate.
+  let ousados = [];
+  if(maioriaClasse === 'time1' || maioriaClasse === 'time2'){
+    const classeOposta = maioriaClasse === 'time1' ? 'time2' : 'time1';
+    ousados = porUsuario
+      .filter(pu => pu.classe === classeOposta)
+      .map(pu => {
+        const u = usersData.get(pu.uid) || {};
+        return {
+          name: u.name || 'Usuário',
+          palpiteLabel: labelDe(pu.classe),
+          acertou: pu.classe === resultadoReal,
+        };
+      });
+  }
+
+  return { temReplay:true, resultadoReal, percentual, maioriaLabel, ousados, totalPalpites };
+}
+
+/**
+ * Compara o ranking ANTES e DEPOIS de um jogo (mesmo formato: array
+ * ordenado de {uid,name,pts}) e gera frases de "provocação" sobre quem
+ * passou quem, quem perdeu/assumiu a liderança, e se o topo está
+ * apertado ("o líder está tremendo").
+ *
+ * As frases têm variações escolhidas aleatoriamente (Math.random) pra não
+ * ficar repetitivo — por isso essa função NÃO é pura/determinística (ao
+ * contrário das outras funções de cálculo do app). Quem precisar de
+ * determinismo pra teste deve injetar um gerador de aleatoriedade — aqui
+ * mantemos simples já que é conteúdo de "zoeira", não lógica de negócio.
+ *
+ * @param {Array<{uid,name,pts}>} rankingAntes - ordenado, posição = índice
+ * @param {Array<{uid,name,pts}>} rankingDepois - ordenado, posição = índice
+ * @param {number} margemTremendo - diferença de pts entre 1º e 2º abaixo da qual "o líder está tremendo" (default 10)
+ * @returns {string[]} frases prontas, mais relevante primeiro
+ */
+function gerarFrasesProvocacao(rankingAntes, rankingDepois, margemTremendo = 10){
+  const frases = [];
+  if(!rankingAntes.length || !rankingDepois.length) return frases;
+
+  const posAntes = new Map(rankingAntes.map((r,i)=>[r.uid,i]));
+  const posDepois = new Map(rankingDepois.map((r,i)=>[r.uid,i]));
+
+  // Mudança de líder
+  const liderAntes = rankingAntes[0];
+  const liderDepois = rankingDepois[0];
+  if(liderAntes.uid !== liderDepois.uid){
+    const fr = pick([
+      `👑 ${liderDepois.name} assumiu a liderança!`,
+      `🚨 Troca no topo: ${liderDepois.name} é o novo líder!`,
+      `${liderDepois.name} tomou a ponta de ${liderAntes.name}!`,
+    ]);
+    frases.push(fr);
+    frases.push(pick([
+      `${liderAntes.name} perdeu a liderança.`,
+      `${liderAntes.name} foi destronado(a).`,
+      `Reinado de ${liderAntes.name} chegou ao fim (por enquanto).`,
+    ]));
+  }
+
+  // Ultrapassagens (qualquer par que trocou de ordem relativa)
+  rankingDepois.forEach((r, i) => {
+    const antes = posAntes.get(r.uid);
+    if(antes === undefined) return;
+    if(i < antes){
+      // Subiu — quem ele ultrapassou (o que estava logo na posição "i" antes)
+      const ultrapassado = rankingAntes[i];
+      if(ultrapassado && ultrapassado.uid !== r.uid && posDepois.get(ultrapassado.uid) > i){
+        frases.push(pick([
+          `📈 ${r.name} passou ${ultrapassado.name} no ranking.`,
+          `${r.name} ultrapassou ${ultrapassado.name}!`,
+          `Ih rapaz, ${r.name} acabou de passar ${ultrapassado.name}.`,
+        ]));
+      }
+    }
+  });
+
+  // Quedas pra posições "redondas" relevantes (top 3 -> fora do top 3, etc)
+  rankingAntes.forEach((r) => {
+    const antes = posAntes.get(r.uid);
+    const depois = posDepois.get(r.uid);
+    if(depois === undefined) return;
+    if(depois > antes && antes <= 2 && depois > 2){
+      frases.push(pick([
+        `📉 ${r.name} caiu para ${depois+1}º lugar.`,
+        `${r.name} saiu do pódio — agora é ${depois+1}º.`,
+        `Vacilou! ${r.name} despencou pro ${depois+1}º.`,
+      ]));
+    }
+  });
+
+  // "O líder está tremendo" — diferença pequena pro 2º colocado
+  if(rankingDepois.length >= 2){
+    const dif = rankingDepois[0].pts - rankingDepois[1].pts;
+    if(dif <= margemTremendo){
+      frases.push(pick([
+        `😬 O líder está tremendo — só ${dif}pts de vantagem sobre o 2º.`,
+        `Atenção: ${rankingDepois[0].name} lidera por apenas ${dif}pts!`,
+        `Disputa apertada lá em cima: ${dif}pts separam o 1º do 2º.`,
+      ]));
+    }
+  }
+
+  return frases;
+}
+
+/**
+ * Escolhe um item aleatório de um array — usado pelas funções de "zoeira"
+ * pra variar as frases entre execuções.
+ */
+function pick(arr){
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/**
+ * Gera o "Feed Social" estilo Twitter/Instagram pro resumo do WhatsApp:
+ * highlights da última rodada — quem apostou o quê, quem acertou
+ * placar exato, mudanças de liderança — em formato de frases curtas.
+ *
+ * Combina gerarReplayPalpites (ousadia) + gerarFrasesProvocacao (ranking)
+ * + destaques de placar exato, tudo num único array de frases prontas.
+ *
+ * @param {object} jogo - jogo da última rodada (de calcularUltimaRodada)
+ * @param {Object} res - resultados/jogos
+ * @param {Map<string,object>} usersData
+ * @param {Map<string,object>} palpitesMap
+ * @param {Array<{uid,name,pts}>} rankingAntes - ranking ordenado ANTES do jogo
+ * @param {Array<{uid,name,pts}>} rankingDepois - ranking ordenado DEPOIS do jogo
+ * @returns {string[]} frases prontas pro feed
+ */
+function gerarFeedSocial(jogo, res, usersData, palpitesMap, rankingAntes, rankingDepois){
+  const frases = [];
+  const r = res[jogo.id];
+  if(!r || r.gols1 === undefined) return frases;
+
+  // Placar exato — destaque de quem acertou na mosca
+  usersData.forEach((u, uid) => {
+    const pal = palpitesMap.get(uid) || {};
+    const p = pal[jogo.id];
+    if(p && p.gols1 !== undefined && parseInt(p.gols1)===r.gols1 && parseInt(p.gols2)===r.gols2){
+      frases.push(pick([
+        `🎯 ${u.name} acertou o placar EXATO de ${jogo.time1} ${r.gols1}x${r.gols2} ${jogo.time2}!`,
+        `${u.name} cravou ${jogo.time1} ${r.gols1}x${r.gols2} ${jogo.time2}.Vidente?`,
+      ]));
+    }
+  });
+
+  // Palpites notáveis (qualquer palpite, não só os "ousados") — mostra uma
+  // amostra de quem apostou o quê nesse jogo específico, no estilo "feed".
+  const palpitesDoJogo = [];
+  usersData.forEach((u, uid) => {
+    const pal = palpitesMap.get(uid) || {};
+    const p = pal[jogo.id];
+    if(p && p.gols1 !== undefined){
+      palpitesDoJogo.push({ name: u.name, g1: p.gols1, g2: p.gols2 });
+    }
+  });
+  // Pega até 2 palpites aleatórios pra dar a sensação de "feed" sem virar
+  // uma lista gigante de todo mundo.
+  const amostra = [...palpitesDoJogo].sort(() => Math.random()-0.5).slice(0,2);
+  amostra.forEach(p => {
+    frases.push(`💬 ${p.name} apostou ${jogo.time1} ${p.g1}x${p.g2} ${jogo.time2}.`);
+  });
+
+  // Provocações de ranking (líder, ultrapassagens, etc)
+  frases.push(...gerarFrasesProvocacao(rankingAntes, rankingDepois));
+
+  return frases;
+}
+
 
 
 async function carregarJogosAPI(){
@@ -1696,7 +2086,7 @@ function gerenciarPollingLive(){
         // Para o polling se não houver mais jogo ao vivo
         if(!temJogoAoVivo()){
           _rankingProvisorio = null;
-          _snapshotPreLive = null;
+          _rankingProvisorioOrdenado = null;
           _ultimoPlacarLive = {};
           clearInterval(_livePollingInterval);
           _livePollingInterval = null;
@@ -1792,7 +2182,7 @@ async function atualizarPlacaresLiveECalcularProvisorio(){
 
   if(jogosLive.length === 0){
     _rankingProvisorio = null;
-    _snapshotPreLive = null;
+    _rankingProvisorioOrdenado = null;
     return true;
   }
 
@@ -1802,31 +2192,11 @@ async function atualizarPlacaresLiveECalcularProvisorio(){
     const usersSnap = await getDocs(collection(db,'users'));
     const palpitesMap = await buscarTodosPalpites();
 
-    // Na PRIMEIRA vez que detectamos jogo(s) ao vivo nesta sessão, salva o
-    // ranking oficial (sem nenhum extra provisório) como ponto de partida
-    // pra calcular as setinhas durante esse(s) jogo(s). Isso evita misturar
-    // o efeito deste jogo com o de jogos anteriores já oficializados.
-    if(_snapshotPreLive === null){
-      const oficial = [];
-      usersSnap.docs.forEach((ud) => {
-        const pal = palpitesMap.get(ud.id) || {};
-        let pts = 0, exatos = 0;
-        for(const jid of Object.keys(pal)){
-          const r = resultados[jid]; const p = pal[jid];
-          if(r && r.gols1 !== undefined){
-            const pp = calcPts(p.gols1,p.gols2,r.gols1,r.gols2);
-            pts += pp; if(pp===25) exatos++;
-          }
-        }
-        oficial.push({uid: ud.id, pts, exatos});
-      });
-      oficial.sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos);
-      _snapshotPreLive = {};
-      oficial.forEach((r,i)=>{ _snapshotPreLive[r.uid] = i; });
-    }
-
     const provisorio = {};
+    const usersData = new Map();
     usersSnap.docs.forEach((ud) => {
+      const u = ud.data();
+      usersData.set(ud.id, u);
       const pal = palpitesMap.get(ud.id) || {};
       let extras = 0;
       for(const j of jogosLive){
@@ -1838,10 +2208,33 @@ async function atualizarPlacaresLiveECalcularProvisorio(){
       provisorio[ud.id] = extras;
     });
     _rankingProvisorio = provisorio;
+
+    // Monta o ranking provisório ORDENADO (pts oficiais + extras ao vivo)
+    // pra comparar com a ordem anterior e disparar toasts de "fulano
+    // passou beltrano" / "novo líder" em tempo real, durante o jogo.
+    const rankingOrdenadoAgora = [...usersData.entries()]
+      .map(([uid, u]) => {
+        let pts = 0;
+        const pal = palpitesMap.get(uid) || {};
+        for(const jid of Object.keys(pal)){
+          const r = resultados[jid]; const p = pal[jid];
+          if(r && r.gols1 !== undefined) pts += calcPts(p.gols1,p.gols2,r.gols1,r.gols2);
+        }
+        return { uid, name: u.name || 'Usuário', pts: pts + (provisorio[uid]||0) };
+      })
+      .sort((a,b)=>b.pts-a.pts);
+
+    if(_rankingProvisorioOrdenado){
+      const frases = gerarFrasesProvocacao(_rankingProvisorioOrdenado, rankingOrdenadoAgora, 7);
+      // Mostra no máximo 1 toast por ciclo de polling, pra não empilhar
+      // vários toasts de uma vez (a UI só suporta 1 por vez mesmo).
+      if(frases.length) showToast(frases[0]);
+    }
+    _rankingProvisorioOrdenado = rankingOrdenadoAgora;
   } catch(e){
     console.error('Erro ao calcular ranking provisório:', e);
     _rankingProvisorio = null;
-    _snapshotPreLive = null;
+    _rankingProvisorioOrdenado = null;
   }
   return true;
 }
@@ -1889,17 +2282,36 @@ function renderJogos(){
 }
 
 function scrollToHoje(){
-  const hoje = formatarDiaChave(new Date().toISOString());
-  // Tenta o dia de hoje primeiro, depois o próximo jogo futuro
-  let el = document.getElementById('dia-' + hoje);
+  // Prioridade do scroll automático:
+  // 1) jogo AO VIVO agora (já começou, sem resultado oficial salvo ainda)
+  // 2) próximo jogo que ainda não começou (em ordem cronológica)
+  // 3) fallback: dia de hoje, ou o primeiro dia futuro com jogos
+  // Em todos os casos, jogos de hoje que já TERMINARAM são pulados.
+  const agora = new Date();
+  const ordenados = [...JOGOS_COPA].sort((a,b) => a.utc.localeCompare(b.utc));
+
+  const jogoAoVivo = ordenados.find(j => {
+    const r = resultados[j.id];
+    const jaTerminou = r && r.gols1 !== undefined;
+    return !jaTerminou && new Date(j.utc) <= agora && (j.status === 'IN_PLAY' || j.status === 'PAUSED');
+  });
+  const proximoJogo = jogoAoVivo || ordenados.find(j => new Date(j.utc) > agora);
+
+  let el = proximoJogo ? document.getElementById('card_' + proximoJogo.id) : null;
+
   if(!el){
-    // Acha o próximo dia com jogos
-    const allDias = document.querySelectorAll('[id^="dia-"]');
-    for(const d of allDias){
-      const k = d.id.replace('dia-','');
-      if(k >= hoje){ el = d; break; }
+    // Fallback: dia de hoje, ou o próximo dia com jogos.
+    const hoje = formatarDiaChave(new Date().toISOString());
+    el = document.getElementById('dia-' + hoje);
+    if(!el){
+      const allDias = document.querySelectorAll('[id^="dia-"]');
+      for(const d of allDias){
+        const k = d.id.replace('dia-','');
+        if(k >= hoje){ el = d; break; }
+      }
     }
   }
+
   if(el){
     // Calcula a posição exata, compensando a altura real do header fixo
     // (medida dinamicamente — não depende da altura dos cards abaixo).
@@ -2038,19 +2450,14 @@ async function buscarResultadosAPI(){
 
     // IMPORTANTE: extrairResultadosFinalizados retorna TODOS os jogos
     // FINISHED com placar, não só os novos. Filtramos pra só os que AINDA
-    // NÃO foram persistidos — senão, toda chamada repetida (de qualquer um
-    // dos dois pollers de auto-oficialização) re-executaria
-    // salvarRankingSnapshot() com o estado JÁ ATUALIZADO, fazendo a coluna
-    // "última rodada" mostrar +0 pra todo mundo (snapshot corrompido).
+    // NÃO foram persistidos — evita escritas repetidas/redundantes no
+    // Firestore a cada poll.
     const novosPendentes = {};
     for(const jid of Object.keys(novosRes)){
       if(!_resultadosPersistidos.has(String(jid))) novosPendentes[jid] = novosRes[jid];
     }
 
     if(Object.keys(novosPendentes).length){
-      // Snapshot do ranking ANTES de aplicar os novos resultados —
-      // assim as setinhas no ranking refletem a mudança desta atualização.
-      await salvarRankingSnapshot();
       await setDoc(doc(db,'resultados','jogos'), novosPendentes, {merge:true});
       Object.assign(resultados, novosPendentes);
       Object.keys(novosPendentes).forEach(jid => _resultadosPersistidos.add(String(jid)));
@@ -2130,7 +2537,6 @@ function renderAdmin(){
   document.getElementById('adminJogosList').innerHTML = html;
   popularSelectJogosFinalizados();
   renderListaUsuarios();
-  renderSnapshotCorrecao();
 }
 
 /**
@@ -2229,106 +2635,6 @@ window.__excluirUsuario = async (uid, nome) => {
     carregarRanking(true);
   } catch(e){
     showToast('Erro ao excluir: '+e.message);
-  }
-};
-
-/**
- * Renderiza a lista de checkboxes do card "Corrigir snapshot do ranking":
- * os últimos jogos FINALIZADOS (mais recente primeiro), pra o admin marcar
- * quais devem ser tratados como "última rodada" ao recalcular.
- *
- * Default: marca só os jogos do MESMO DIA do jogo mais recente — cobre o
- * caso comum (1 rodada = jogos de um dia), mas o admin pode ajustar.
- */
-window.renderSnapshotCorrecao = () => {
-  const container = document.getElementById('snapshotCorrecaoList');
-  if(!container) return;
-
-  const finalizados = JOGOS_COPA
-    .filter(j => resultados[j.id] && resultados[j.id].gols1 !== undefined)
-    .sort((a,b)=>b.utc.localeCompare(a.utc)); // mais recente primeiro
-
-  if(finalizados.length === 0){
-    container.innerHTML = '<div class="empty">Nenhum jogo finalizado ainda.</div>';
-    return;
-  }
-
-  const diaMaisRecente = formatarDiaChave(finalizados[0].utc);
-
-  let html = '';
-  finalizados.slice(0, 8).forEach(j => {
-    const r = resultados[j.id];
-    const marcado = formatarDiaChave(j.utc) === diaMaisRecente ? 'checked' : '';
-    html += `<label style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
-      <input type="checkbox" class="snapshot-jogo-cb" value="${j.id}" ${marcado} style="width:18px;height:18px;flex-shrink:0;">
-      <span>${j.time1} ${r.gols1}×${r.gols2} ${j.time2} <span style="color:var(--text3);">(${formatarData(j.utc)})</span></span>
-    </label>`;
-  });
-  container.innerHTML = html;
-};
-
-/**
- * Recalcula `meta/rankingSnapshot` representando "o ranking ANTES dos
- * jogos marcados como última rodada". Isso corrige a coluna "última
- * rodada" e as setinhas ▲▼ quando o snapshot foi corrompido (ex: chamadas
- * repetidas de auto-oficialização re-snapshotando o estado já atualizado).
- *
- * Funciona inteiramente no app — sem precisar de console do navegador,
- * então roda direto do celular.
- */
-window.__recalcularSnapshot = async () => {
-  if(!isAdmin()){ showToast('Sem permissão.'); return; }
-
-  const checkboxes = document.querySelectorAll('.snapshot-jogo-cb:checked');
-  const idsUltimaRodada = new Set([...checkboxes].map(cb => String(cb.value)));
-
-  if(idsUltimaRodada.size === 0){
-    showToast('Marque pelo menos 1 jogo como "última rodada".');
-    return;
-  }
-
-  const nomes = [...idsUltimaRodada].map(id => {
-    const j = JOGOS_COPA.find(jj => String(jj.id) === id);
-    const r = resultados[id];
-    return j ? `${j.time1} ${r.gols1}×${r.gols2} ${j.time2}` : id;
-  });
-
-  if(!confirm(`Recalcular snapshot tratando estes jogos como "última rodada"?\n\n${nomes.join('\n')}\n\nIsso vai sobrescrever o snapshot atual.`)) return;
-
-  try {
-    const usersSnap = await getDocs(collection(db,'users'));
-    const palpitesMap = await buscarTodosPalpites();
-
-    // resAntes = resultados oficiais SEM os jogos marcados
-    const resAntes = {...resultados};
-    idsUltimaRodada.forEach(id => delete resAntes[id]);
-
-    const ranking = [];
-    usersSnap.docs.forEach((ud) => {
-      const pal = palpitesMap.get(ud.id) || {};
-      let pts=0, exatos=0;
-      for(const jid of Object.keys(pal)){
-        const r = resAntes[jid]; const p = pal[jid];
-        if(r && r.gols1 !== undefined){
-          const pp = calcPts(p.gols1,p.gols2,r.gols1,r.gols2);
-          pts += pp; if(pp===25) exatos++;
-        }
-      }
-      ranking.push({uid: ud.id, pts, exatos});
-    });
-    ranking.sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos);
-
-    const posicoes = {};
-    const pontos = {};
-    ranking.forEach((r,i)=>{ posicoes[r.uid]=i; pontos[r.uid]=r.pts; });
-
-    const jogosComResultado = Object.keys(resAntes);
-
-    await setDoc(doc(db,'meta','rankingSnapshot'), {posicoes, pontos, jogosComResultado, atualizadoEm: new Date().toISOString()});
-    showToast('✅ Snapshot recalculado!');
-    carregarRanking(true);
-  } catch(e){
-    showToast('Erro: '+e.message);
   }
 };
 
@@ -2486,7 +2792,6 @@ window.__removerResultado = async (jogoId) => {
   if(!isAdmin()){ showToast('Sem permissão.'); return; }
   if(!confirm('Remover o resultado desse jogo?')) return;
   try {
-    await salvarRankingSnapshot();
     await setDoc(doc(db,'resultados','jogos'),{[jogoId]: deleteField()},{merge:true});
     delete resultados[jogoId];
     showToast('Resultado removido!');
@@ -2518,7 +2823,6 @@ window.__salvarResultado = async (jogoId) => {
   const g2 = document.getElementById('ar2_'+jogoId).value;
   if(g1===''||g2===''){ showToast('Digite os dois placares!'); return; }
   try {
-    await salvarRankingSnapshot();
     await setDoc(doc(db,'resultados','jogos'),{[jogoId]:{gols1:parseInt(g1),gols2:parseInt(g2)}},{merge:true});
     resultados[jogoId] = {gols1:parseInt(g1), gols2:parseInt(g2)};
     showToast('Resultado salvo!');
@@ -2649,6 +2953,21 @@ window.__abrirDedoDuro = () => {
   meusViewMode = 'dedoduro';
   switchTab('meus');
   window.__setMeusView('dedoduro');
+};
+
+let rankViewMode = 'lista';
+
+/**
+ * Alterna entre a sub-aba "Ranking" (lista normal) e "Evolução" (gráfico
+ * de posição por jogo, 1 jogador por vez) dentro da tela de Ranking.
+ */
+window.__setRankView = (mode) => {
+  rankViewMode = mode;
+  document.getElementById('vbRankLista').classList.toggle('active', mode==='lista');
+  document.getElementById('vbRankEvolucao').classList.toggle('active', mode==='evolucao');
+  document.getElementById('rankViewLista').style.display = mode==='lista' ? '' : 'none';
+  document.getElementById('rankViewEvolucao').style.display = mode==='evolucao' ? '' : 'none';
+  if(mode === 'evolucao') popularSelectJogadorEvolucao();
 };
 
 /**
@@ -2870,6 +3189,151 @@ async function carregarMeusPalpites(){
 let _rankingCache = null;
 let _rankingCacheTime = 0;
 
+let _evolucaoCache = null; // {usersData, historicoPosicoes}
+let _evolucaoCacheTime = 0;
+
+/**
+ * Busca os dados necessários pro gráfico de Evolução (usuários + histórico
+ * de posição por jogo) — com cache de 60s, igual ao ranking, pra não
+ * refazer fetch toda vez que a pessoa troca de jogador no dropdown.
+ */
+async function buscarDadosEvolucao(force=false){
+  if(!force && _evolucaoCache && (Date.now()-_evolucaoCacheTime < 60000)){
+    return _evolucaoCache;
+  }
+  const [usersSnap, resSnap] = await Promise.all([
+    getDocs(collection(db,'users')),
+    getDoc(doc(db,'resultados','jogos'))
+  ]);
+  const res = resSnap.exists() ? resSnap.data() : {};
+  const palpitesMap = await buscarTodosPalpites();
+  const usersData = new Map(usersSnap.docs.map(ud => [ud.id, ud.data()]));
+  const historicoPosicoes = calcularHistoricoPosicoes(JOGOS_COPA, res, usersData, palpitesMap);
+  _evolucaoCache = { usersData, historicoPosicoes };
+  _evolucaoCacheTime = Date.now();
+  return _evolucaoCache;
+}
+
+/**
+ * Popula o <select> de jogadores da sub-aba "Evolução", ordenado
+ * alfabeticamente. Seleciona o usuário LOGADO por padrão (se ele tiver
+ * histórico); senão, mantém a seleção atual ou cai pro primeiro da lista.
+ */
+async function popularSelectJogadorEvolucao(){
+  const sel = document.getElementById('selectJogadorEvolucao');
+  if(!sel) return;
+  const valorAtual = sel.value;
+  const conteudo = document.getElementById('evolucaoPosicaoConteudo');
+  if(conteudo) conteudo.innerHTML = '<div class="loading"><div class="spinner"></div>Calculando...</div>';
+
+  try {
+    const { usersData } = await buscarDadosEvolucao();
+    const jogadores = [...usersData.entries()]
+      .map(([uid, u]) => ({uid, name: u.name || 'Usuário'}))
+      .sort((a,b)=>a.name.localeCompare(b.name, 'pt-BR'));
+
+    let html = '<option value="">Selecione um jogador...</option>';
+    jogadores.forEach(j => {
+      html += `<option value="${j.uid}">${j.name}</option>`;
+    });
+    sel.innerHTML = html;
+
+    if(jogadores.some(j => j.uid === valorAtual)){
+      sel.value = valorAtual;
+    } else if(currentUser && jogadores.some(j => j.uid === currentUser.uid)){
+      sel.value = currentUser.uid; // abre direto no usuário logado, por padrão
+    } else if(jogadores.length){
+      sel.value = jogadores[0].uid;
+    }
+
+    renderEvolucaoPosicao();
+  } catch(e){
+    if(conteudo) conteudo.innerHTML = '<div class="empty">Erro ao carregar evolução.<br><small>'+e.message+'</small></div>';
+  }
+}
+
+/**
+ * Desenha o gráfico de linha (SVG) com a evolução de posição do jogador
+ * selecionado, desde o primeiro jogo oficializado até o mais recente.
+ * Eixo Y invertido (de baixo pra cima = melhor posição), igual ao pedido.
+ */
+window.__renderEvolucaoPosicao = async () => {
+  const sel = document.getElementById('selectJogadorEvolucao');
+  const conteudo = document.getElementById('evolucaoPosicaoConteudo');
+  if(!sel || !conteudo) return;
+  const uid = sel.value;
+  if(!uid){ conteudo.innerHTML = ''; return; }
+
+  const { usersData, historicoPosicoes } = await buscarDadosEvolucao();
+  const nomeJogador = (usersData.get(uid) || {}).name || 'Usuário';
+  const historico = historicoPosicoes.get(uid) || [];
+
+  if(historico.length === 0){
+    conteudo.innerHTML = '<div class="empty">Ainda não há jogos finalizados pra mostrar a evolução de '+nomeJogador+'.</div>';
+    return;
+  }
+
+  const totalParticipantes = usersData.size;
+  // SVG: eixo X = jogos em ordem cronológica, eixo Y = posição (1 no topo,
+  // invertido — pedido explícito do usuário: "de baixo pra cima" = melhor).
+  const w = 320, h = 190, padL = 28, padR = 12, padT = 24, padB = 28;
+  const innerW = w - padL - padR, innerH = h - padT - padB;
+  const n = historico.length;
+  const xStep = n > 1 ? innerW / (n - 1) : 0;
+  const maxPos = Math.max(1, totalParticipantes - 1); // 0-indexed
+  const yFor = (posicao0idx) => padT + (posicao0idx / maxPos) * innerH; // posicao 0 (1º lugar) fica no topo
+
+  const pontos = historico.map((hpt, i) => ({
+    x: padL + i * xStep,
+    y: yFor(hpt.posicao),
+    posicao: hpt.posicao,
+    pts: hpt.pts,
+    time1: hpt.time1, time2: hpt.time2,
+  }));
+
+  const linePath = pontos.map((p,i)=> (i===0?'M':'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+
+  const posAtual = historico[historico.length-1].posicao + 1;
+  const melhorPos = Math.min(...historico.map(h=>h.posicao)) + 1;
+  const piorPos = Math.max(...historico.map(h=>h.posicao)) + 1;
+
+  const circles = pontos.map((p,i)=>{
+    const isUltimo = i === pontos.length - 1;
+    const r = isUltimo ? 5 : 3.5;
+    const cor = isUltimo ? 'var(--gold)' : 'var(--green)';
+    // Texto da posição um pouco acima da bolinha. Quando a bolinha está
+    // muito perto do topo do gráfico (1º lugar), o texto subiria pra fora
+    // da área visível — nesse caso colocamos ele ABAIXO da bolinha.
+    const labelAcima = p.y > (padT + 10);
+    const textY = labelAcima ? p.y - r - 4 : p.y + r + 9;
+    return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" fill="${cor}">
+      <title>${p.time1} x ${p.time2}: ${p.posicao+1}º lugar (${p.pts}pts)</title>
+    </circle>
+    <text x="${p.x.toFixed(1)}" y="${textY.toFixed(1)}" text-anchor="middle" font-size="9" font-weight="700" fill="${cor}">${p.posicao+1}º</text>`;
+  }).join('');
+
+  const svg = `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block;">
+    <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${h-padB}" stroke="var(--border2)" stroke-width="1"/>
+    <line x1="${padL}" y1="${h-padB}" x2="${w-padR}" y2="${h-padB}" stroke="var(--border2)" stroke-width="1"/>
+    <text x="${padL-4}" y="${padT+4}" text-anchor="end" font-size="9" fill="var(--text3)">1º</text>
+    <text x="${padL-4}" y="${h-padB+2}" text-anchor="end" font-size="9" fill="var(--text3)">${totalParticipantes}º</text>
+    <path d="${linePath}" fill="none" stroke="var(--green)" stroke-width="2"/>
+    ${circles}
+  </svg>`;
+
+  conteudo.innerHTML = `
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <div class="stat-card" style="flex:1;min-width:90px;"><div class="stat-num">${posAtual}º</div><div class="stat-label">posição atual</div></div>
+      <div class="stat-card" style="flex:1;min-width:90px;"><div class="stat-num">${melhorPos}º</div><div class="stat-label">melhor posição</div></div>
+      <div class="stat-card" style="flex:1;min-width:90px;"><div class="stat-num">${piorPos}º</div><div class="stat-label">pior posição</div></div>
+    </div>
+    <div class="card" style="background:var(--s2);padding:14px 10px 6px 4px;">
+      ${svg}
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-top:8px;text-align:center;">${n} jogo${n!==1?'s':''} oficializado${n!==1?'s':''} considerado${n!==1?'s':''} — ${nomeJogador}</div>
+  `;
+};
+
 async function carregarRanking(force=false){
   // Usa cache por 60s para evitar re-fetch a cada troca de aba
   if(!force && _rankingCache && (Date.now()-_rankingCacheTime < 60000)){
@@ -2893,28 +3357,28 @@ async function carregarRanking(force=false){
     .sort((a,b) => b.utc.localeCompare(a.utc))
     .slice(0, 5);
 
-  const ranking = [];
-  usersSnap.docs.forEach((ud) => {
-    const u = ud.data();
-    const pal = palpitesMap.get(ud.id) || {};
-    let pts=0,acertos=0,exatos=0;
-    for(const jid of Object.keys(pal)){
-      const r=res[jid]; const p=pal[jid];
-      if(r&&r.gols1!==undefined){ const pp=calcPts(p.gols1,p.gols2,r.gols1,r.gols2); pts+=pp; if(pp>0)acertos++; if(pp===25)exatos++; }
-    }
-    // Forma: últimos 5 jogos finalizados, mais recente primeiro.
-    // 'exato' (verde) = placar exato (+25), 'pontuou' (amarelo) = qualquer
-    // outro acerto (+5/+7/+10), 'errou' (cinza) = 0 ou sem palpite.
-    const forma = ultimosFinalizados.map(j => {
-      const r = res[j.id]; const p = pal[j.id];
+  // "Última rodada" (jogos finalizados no dia local mais recente) +
+  // ptsAntes/exatosAntes de cada usuário — função PURA compartilhada com
+  // compartilharResumoWhatsApp, calculada on-the-fly (sem nenhum estado
+  // persistido, substitui o antigo `meta/rankingSnapshot`).
+  const usersData = new Map(usersSnap.docs.map(ud => [ud.id, ud.data()]));
+  const { ranking, temUltimaRodada } = calcularUltimaRodada(JOGOS_COPA, res, usersData, palpitesMap);
+
+  // Forma: últimos 5 jogos finalizados, mais recente primeiro.
+  // 'exato' (verde) = placar exato (+25), 'pontuou' (amarelo) = qualquer
+  // outro acerto (+5/+7/+10), 'errou' (cinza) = 0 ou sem palpite.
+  ranking.forEach(r => {
+    const pal = palpitesMap.get(r.uid) || {};
+    r.forma = ultimosFinalizados.map(j => {
+      const res2 = res[j.id]; const p = pal[j.id];
       if(!p || p.gols1 === undefined) return 'errou';
-      const pp = calcPts(p.gols1,p.gols2,r.gols1,r.gols2);
+      const pp = calcPts(p.gols1,p.gols2,res2.gols1,res2.gols2);
       if(pp===25) return 'exato';
       if(pp>0) return 'pontuou';
       return 'errou';
     });
-    ranking.push({uid:ud.id,name:u.name||'Usuário',photo:u.photo,pts,acertos,exatos,total:Object.keys(pal).length,forma});
   });
+
 
   // Se há jogo ao vivo, ordena pelo total PROVISÓRIO (pts oficiais + pontos
   // que cada um ganharia agora) — o ranking "sobe e desce" durante o jogo.
@@ -2926,25 +3390,21 @@ async function carregarRanking(force=false){
     ranking.sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos);
   }
 
-  // Compara com o snapshot de posições da última atualização de resultados.
-  // Durante jogo ao vivo, usa o snapshot "pré-live" (posições oficiais no
-  // momento em que ESTE jogo começou) — evita misturar o efeito deste jogo
-  // com o de jogos anteriores já oficializados.
-  let snapshot = {};
-  let pontosAnteriores = {};
-  if(temLive && _snapshotPreLive){
-    snapshot = _snapshotPreLive;
-    // pontosAnteriores não se aplica durante live (coluna mostra "AO VIVO" em vez de "última rodada")
-  } else {
-    try {
-      const snapDoc = await getDoc(doc(db,'meta','rankingSnapshot'));
-      if(snapDoc.exists()){
-        const data = snapDoc.data();
-        snapshot = data.posicoes || {};
-        pontosAnteriores = data.pontos || {};
-      }
-    } catch(e){ /* sem snapshot ainda, tudo bem */ }
+  // Posições "antes", pra calcular as setinhas ▲▼ (sempre on-the-fly):
+  // - jogo ao vivo: "antes" = ordenado pelos pontos OFICIAIS (sem o extra
+  //   provisório deste jogo) — mostra o efeito do jogo em andamento.
+  // - sem jogo ao vivo: "antes" = ordenado SEM os jogos da última rodada.
+  // - nada finalizado ainda E sem live: posAntes fica vazio (sem setinhas),
+  //   igual ao comportamento de "ainda não há snapshot".
+  const posAntes = {};
+  if(temLive){
+    [...ranking].sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos)
+      .forEach((r,i)=>{ posAntes[r.uid]=i; });
+  } else if(temUltimaRodada){
+    [...ranking].sort((a,b)=>b.ptsAntes-a.ptsAntes||b.exatosAntes-a.exatosAntes)
+      .forEach((r,i)=>{ posAntes[r.uid]=i; });
   }
+
 
   document.getElementById('totalParticipantes').textContent = ranking.length+' jogador'+(ranking.length!==1?'es':'');
   const liveBanner = document.getElementById('rankingLiveBanner');
@@ -2954,10 +3414,15 @@ async function carregarRanking(force=false){
       : '';
   }
   let html='';
+  // Total do líder (1º colocado), usado pra calcular "-N pts do líder" de
+  // cada jogador. Usa o mesmo critério de exibição que cada linha usa
+  // (provisório durante jogo ao vivo, oficial caso contrário) — assim a
+  // diferença atualiza em tempo real junto com o resto do ranking ao vivo.
+  const totalLider = ranking.length ? (temLive ? ranking[0].ptsProvisorio : ranking[0].pts) : 0;
   ranking.forEach((r,i)=>{
     const ini = r.name.split(' ').map(n=>n[0]).join('').slice(0,2);
     const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1;
-    const posAnterior = snapshot[r.uid];
+    const posAnterior = posAntes[r.uid];
     let setaHtml = '';
     if(posAnterior !== undefined){
       const diff = posAnterior - i; // positivo = subiu, negativo = desceu
@@ -2975,16 +3440,13 @@ async function carregarRanking(force=false){
         <div class="rank-col-label rank-live-label"><span class="live-dot"></span> AO VIVO</div>
         <div class="${valClass}" title="Provisório — pode mudar até o fim do jogo">+${extras}</div>
       </div>`;
-    } else {
-      const ptsAntes = pontosAnteriores[r.uid];
-      if(ptsAntes !== undefined){
-        const ganho = r.pts - ptsAntes;
-        const valClass = ganho > 0 ? 'rank-ultima-val' : 'rank-ultima-val rank-ultima-zero';
-        ultimaRodadaCol = `<div class="rank-col">
-          <div class="rank-col-label">última rodada</div>
-          <div class="${valClass}">+${ganho}</div>
-        </div>`;
-      }
+    } else if(temUltimaRodada){
+      const ganho = r.pts - r.ptsAntes;
+      const valClass = ganho > 0 ? 'rank-ultima-val' : 'rank-ultima-val rank-ultima-zero';
+      ultimaRodadaCol = `<div class="rank-col">
+        <div class="rank-col-label">última rodada</div>
+        <div class="${valClass}">+${ganho}</div>
+      </div>`;
     }
     // Total: durante jogo ao vivo, mostra o total PROVISÓRIO em destaque
     // (com indicação visual de que pode mudar); senão, o total oficial.
@@ -2997,13 +3459,28 @@ async function carregarRanking(force=false){
     const formaHtml = r.forma.length
       ? `<div class="rank-forma">${[...r.forma].reverse().map(f=>`<span class="forma-dot forma-${f}" title="${f==='exato'?'Placar exato':f==='pontuou'?'Pontuou':'Errou'}"></span>`).join('')}</div>`
       : '';
-    html+=`<div class="rank-item">
+
+    // Diferença pro líder — sempre calculada sobre o total EXIBIDO (que já
+    // é o provisório quando há jogo ao vivo), então atualiza em tempo real
+    // junto com o resto do ranking ao vivo. O 1º colocado mostra "líder";
+    // os demais mostram "-N pts" (quanto falta pra alcançar o líder).
+    const difLider = totalExibido === totalLider
+      ? `<span class="rank-dif-lider rank-dif-lider-top">🔥 líder</span>`
+      : `<span class="rank-dif-lider">-${totalLider - totalExibido}pts do líder</span>`;
+
+    // Destaque "esse sou eu": linha do usuário logado fica com fundo
+    // dourado/amarelo (mesma cor de --gold já usada em outros chips).
+    const souEu = currentUser && r.uid === currentUser.uid;
+    const itemClass = souEu ? 'rank-item rank-item-mine' : 'rank-item';
+
+    html+=`<div class="${itemClass}">
       <div class="rank-num">${medal}</div>
       ${setaHtml}
       <div class="rank-avatar">${r.photo?`<img src="${r.photo}" onerror="this.style.display='none'">`:ini}</div>
       <div class="rank-info">
-        <div class="rank-name">${r.name}</div>
+        <div class="rank-name">${r.name}${souEu?' <span class="rank-mine-tag">você</span>':''}</div>
         <div class="rank-detail">${r.total} palpites · ${r.exatos} exatos</div>
+        <div class="rank-dif-lider-line">${difLider}</div>
         ${formaHtml}
       </div>
       <div class="rank-pts-wrap">
@@ -3026,45 +3503,8 @@ async function carregarRanking(force=false){
 }
 
 /**
- * Recalcula o ranking atual e salva as posições (uid -> índice) como
- * snapshot no Firestore. Chamado após o admin atualizar resultados,
- * pra que a PRÓXIMA carga do ranking mostre as setinhas de
- * subiu/desceu/manteve comparando com o estado "antes desta atualização".
- */
-async function salvarRankingSnapshot(){
-  try {
-    const [usersSnap, resSnap] = await Promise.all([
-      getDocs(collection(db,'users')),
-      getDoc(doc(db,'resultados','jogos'))
-    ]);
-    const res = resSnap.exists() ? resSnap.data() : {};
-    const palpitesMap = await buscarTodosPalpites();
-    const ranking = [];
-    usersSnap.docs.forEach((ud) => {
-      const pal = palpitesMap.get(ud.id) || {};
-      let pts=0,exatos=0;
-      for(const jid of Object.keys(pal)){
-        const r=res[jid]; const p=pal[jid];
-        if(r&&r.gols1!==undefined){ const pp=calcPts(p.gols1,p.gols2,r.gols1,r.gols2); pts+=pp; if(pp===25)exatos++; }
-      }
-      ranking.push({uid:ud.id,pts,exatos});
-    });
-    ranking.sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos);
-    const posicoes = {};
-    const pontos = {};
-    ranking.forEach((r,i)=>{ posicoes[r.uid] = i; pontos[r.uid] = r.pts; });
-    // Guarda os IDs dos jogos que já tinham resultado ANTES desta
-    // atualização — permite identificar quais jogos terminaram agora.
-    const jogosComResultado = Object.keys(res);
-    await setDoc(doc(db,'meta','rankingSnapshot'), {posicoes, pontos, jogosComResultado, atualizadoEm: new Date().toISOString()});
-  } catch(e){
-    console.error('Erro ao salvar snapshot do ranking:', e);
-  }
-}
-
-/**
  * Gera um resumo da rodada (top 5 do ranking + maiores altas/quedas de
- * posição + quem fez pontos na última rodada) e abre o WhatsApp (wa.me)
+ * posição + quem fez pontos na última rodada) e abre o WhatsApp (api.whatsapp.com)
  * com o texto pré-preenchido pra compartilhar no grupo.
  */
 window.__compartilharResumoWhatsApp = async () => {
@@ -3073,48 +3513,37 @@ window.__compartilharResumoWhatsApp = async () => {
   if(btn) btn.disabled = true;
   // Abre a aba JÁ (síncrono, dentro do clique) — em navegadores mobile,
   // window.open() chamado DEPOIS de qualquer `await` é bloqueado como
-  // popup. Preenchemos a URL final (wa.me) depois que os dados carregarem.
+  // popup. Preenchemos a URL final (api.whatsapp.com) depois que os dados carregarem.
   const win = window.open('about:blank', '_blank');
   try {
-    const [usersSnap, resSnap, snapDoc] = await Promise.all([
+    const [usersSnap, resSnap] = await Promise.all([
       getDocs(collection(db,'users')),
       getDoc(doc(db,'resultados','jogos')),
-      getDoc(doc(db,'meta','rankingSnapshot'))
     ]);
     const res = resSnap.exists() ? resSnap.data() : {};
-    const snapshot = snapDoc.exists() ? snapDoc.data() : {};
-    const posicoesAntes = snapshot.posicoes || {};
-    const pontosAntes = snapshot.pontos || {};
-    const jogosAntes = new Set(snapshot.jogosComResultado || []);
-
-    // Identifica jogos que têm resultado AGORA mas não tinham no snapshot
-    // anterior — ou seja, terminaram desde a última atualização.
-    const jogosNovos = Object.keys(res).filter(jid => !jogosAntes.has(jid));
-    const nomesJogosNovos = jogosNovos
-      .map(jid => JOGOS_COPA.find(j => String(j.id) === String(jid)))
-      .filter(Boolean)
-      .map(j => {
-        const r = res[j.id];
-        return `${j.time1} ${r.gols1}×${r.gols2} ${j.time2}`;
-      });
-
     const palpitesMap = await buscarTodosPalpites();
 
-    const ranking = [];
-    usersSnap.docs.forEach((ud) => {
-      const u = ud.data();
-      const pal = palpitesMap.get(ud.id) || {};
-      let pts=0, exatos=0;
-      for(const jid of Object.keys(pal)){
-        const r = res[jid]; const p = pal[jid];
-        if(r && r.gols1 !== undefined){
-          const pp = calcPts(p.gols1,p.gols2,r.gols1,r.gols2);
-          pts += pp; if(pp===25) exatos++;
-        }
-      }
-      ranking.push({uid: ud.id, name: u.name || 'Usuário', pts, exatos});
-    });
+    // "Última rodada" (jogos finalizados no dia local mais recente) +
+    // ptsAntes/exatosAntes de cada usuário — mesma função PURA usada pelo
+    // ranking, calculada on-the-fly (sem `meta/rankingSnapshot`).
+    const usersData = new Map(usersSnap.docs.map(ud => [ud.id, ud.data()]));
+    const { ranking, nomesUltimaRodada: nomesJogosNovos } = calcularUltimaRodada(JOGOS_COPA, res, usersData, palpitesMap);
     ranking.sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos);
+
+    // Posições "antes" (sem os jogos da última rodada) — pra setinhas e
+    // "maiores subidas".
+    const posicoesAntes = {};
+    [...ranking]
+      .sort((a,b)=>b.ptsAntes-a.ptsAntes||b.exatosAntes-a.exatosAntes)
+      .forEach((r,i)=>{ posicoesAntes[r.uid]=i; });
+
+    // Jogo da última rodada (objeto completo, não só o nome) — usado pelo
+    // Replay de palpites e pelo Feed Social abaixo. É o mesmo jogo que
+    // calcularUltimaRodada usou internamente (o finalizado mais recente).
+    const finalizadosOrdenados = JOGOS_COPA
+      .filter(j => res[j.id] && res[j.id].gols1 !== undefined)
+      .sort((a,b) => b.utc.localeCompare(a.utc));
+    const jogoUltimaRodada = finalizadosOrdenados[0] || null;
 
     // Monta o texto
     const linhas = [];
@@ -3144,7 +3573,7 @@ window.__compartilharResumoWhatsApp = async () => {
 
     // Destaques da última rodada (quem ganhou pontos)
     const ganhos = ranking
-      .map(r => ({...r, ganho: r.pts - (pontosAntes[r.uid] ?? r.pts)}))
+      .map(r => ({...r, ganho: r.pts - r.ptsAntes}))
       .filter(r => r.ganho > 0)
       .sort((a,b)=>b.ganho-a.ganho);
 
@@ -3158,7 +3587,7 @@ window.__compartilharResumoWhatsApp = async () => {
 
     // Maiores subidas de posição
     const subidas = ranking
-      .map((r,i) => ({name:r.name, diff: (posicoesAntes[r.uid] ?? i) - i}))
+      .map((r,i) => ({name:r.name, diff: posicoesAntes[r.uid] - i}))
       .filter(r => r.diff > 0)
       .sort((a,b)=>b.diff-a.diff);
 
@@ -3170,12 +3599,107 @@ window.__compartilharResumoWhatsApp = async () => {
       });
     }
 
+    // ── FEED SOCIAL + REPLAY — gerados pela IA (Gemini via Worker) ──────
+    // Tenta chamar o Worker /gerar-zoeira com o contexto do jogo. Se falhar
+    // (sem GEMINI_API_KEY, timeout, limite de quota), cai silenciosamente
+    // nas versões hardcoded abaixo — o resumo nunca deixa de ser enviado.
+    let iaGerou = false;
+    if(jogoUltimaRodada){
+      try {
+        const rankingAntesOrdenado = [...ranking].sort((a,b)=>b.ptsAntes-a.ptsAntes||b.exatosAntes-a.exatosAntes);
+        const feedHardcoded = gerarFeedSocial(jogoUltimaRodada, res, usersData, palpitesMap, rankingAntesOrdenado, ranking);
+        const replayDados = gerarReplayPalpites(jogoUltimaRodada, res, usersData, palpitesMap);
+        const percMaioria = replayDados.temReplay
+          ? Math.max(replayDados.percentual.time1, replayDados.percentual.empate, replayDados.percentual.time2)
+          : 0;
+
+        const payload = {
+          jogo: {
+            time1: jogoUltimaRodada.time1,
+            time2: jogoUltimaRodada.time2,
+            gols1: res[jogoUltimaRodada.id].gols1,
+            gols2: res[jogoUltimaRodada.id].gols2,
+          },
+          ranking: ranking.slice(0,5).map((r,i)=>({
+            pos: i+1, name: r.name, pts: r.pts, ganho: r.pts - r.ptsAntes
+          })),
+          ousados: replayDados.temReplay
+            ? replayDados.ousados.slice(0,5).map(o=>({
+                name: o.name, palpite: o.palpiteLabel, acertou: o.acertou
+              }))
+            : [],
+          percMaioria,
+          maioriaLabel: replayDados.maioriaLabel || '',
+          feedDestaques: feedHardcoded.slice(0,6),
+        };
+
+        const ctrl = new AbortController();
+        const timeout = setTimeout(() => ctrl.abort(), 8000); // 8s timeout
+        const iaResp = await fetch(`${WORKER_URL}/gerar-zoeira`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: ctrl.signal,
+        });
+        clearTimeout(timeout);
+
+        if(iaResp.ok){
+          const { texto: iaTexto } = await iaResp.json();
+          if(iaTexto){
+            // Parse dos dois blocos: === FEED === e === REPLAY ===
+            const feedMatch = iaTexto.match(/===\s*FEED\s*===\s*([\s\S]*?)(?====\s*REPLAY\s*===|$)/i);
+            const replayMatch = iaTexto.match(/===\s*REPLAY\s*===\s*([\s\S]*?)$/i);
+
+            const feedIA = feedMatch ? feedMatch[1].trim() : '';
+            const replayIA = replayMatch ? replayMatch[1].trim() : '';
+
+            if(feedIA){
+              linhas.push('');
+              linhas.push('*📲 FEED DA RODADA (IA):*');
+              feedIA.split('\n').filter(l=>l.trim()).forEach(l=>linhas.push(l.trim()));
+              iaGerou = true;
+            }
+            if(replayIA && replayDados.temReplay && replayDados.ousados.length){
+              linhas.push('');
+              linhas.push('*🎬 REPLAY DE PALPITES (IA):*');
+              replayIA.split('\n').filter(l=>l.trim()).forEach(l=>linhas.push(l.trim()));
+            }
+          }
+        }
+      } catch(iaErr){
+        console.warn('IA indisponível, usando fallback hardcoded:', iaErr.message);
+      }
+    }
+
+    // ── FALLBACK: versões hardcoded (se a IA não gerou) ─────────────────
+    if(!iaGerou && jogoUltimaRodada){
+      const rankingAntesOrdenado = [...ranking].sort((a,b)=>b.ptsAntes-a.ptsAntes||b.exatosAntes-a.exatosAntes);
+      const feedSocial = gerarFeedSocial(jogoUltimaRodada, res, usersData, palpitesMap, rankingAntesOrdenado, ranking);
+      if(feedSocial.length){
+        linhas.push('');
+        linhas.push('*📲 FEED DA RODADA:*');
+        feedSocial.slice(0,6).forEach(f => linhas.push(f));
+      }
+      const replay = gerarReplayPalpites(jogoUltimaRodada, res, usersData, palpitesMap);
+      if(replay.temReplay && replay.ousados.length){
+        linhas.push('');
+        linhas.push('*🎬 REPLAY DE PALPITES:*');
+        const percMaioria = Math.max(replay.percentual.time1, replay.percentual.empate, replay.percentual.time2);
+        linhas.push(`${percMaioria}% apostaram em ${replay.maioriaLabel}.`);
+        replay.ousados.slice(0,5).forEach(o => {
+          const resultadoFrase = o.acertou ? 'E ACERTOU! 🔥' : 'E nao rolou...';
+          linhas.push(`- ${o.name} apostou em ${o.palpiteLabel}. ${resultadoFrase}`);
+        });
+        linhas.push(pick(['Coragem ou loucura?', 'Visionário(s) ou só sorte?', 'Contra todo mundo... respeito.']));
+      }
+    }
+
     linhas.push('');
     linhas.push('Confira o ranking completo e seus palpites:');
     linhas.push('https://bolao-copa-2026-71761.web.app');
 
     const texto = encodeURIComponent(linhas.join('\n'));
-    const url = `https://wa.me/?text=${texto}`;
+    const url = `https://api.whatsapp.com/send?text=${texto}`;
     if(win && !win.closed) win.location.href = url;
     else window.open(url, '_blank'); // fallback se o popup foi bloqueado mesmo assim
   } catch(e){
@@ -3189,7 +3713,7 @@ window.__compartilharResumoWhatsApp = async () => {
 /**
  * Gera uma mensagem lembrando a galera dos jogos de HOJE e pedindo pra
  * colocar/conferir os palpites antes do horário de cada jogo. Abre o
- * WhatsApp (wa.me) com o texto pré-preenchido.
+ * WhatsApp (api.whatsapp.com) com o texto pré-preenchido.
  */
 window.__compartilharLembretePalpites = () => {
   if(!isAdmin()){ showToast('Sem permissão.'); return; }
@@ -3227,7 +3751,7 @@ window.__compartilharLembretePalpites = () => {
     linhas.push('https://bolao-copa-2026-71761.web.app');
 
     const texto = encodeURIComponent(linhas.join('\n'));
-    window.open(`https://wa.me/?text=${texto}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
   } catch(e){
     showToast('Erro ao gerar lembrete: '+e.message);
   } finally {
@@ -3240,7 +3764,7 @@ window.__compartilharLembretePalpites = () => {
  * pontuou, quem acertou o placar exato, maiores subidas/quedas no ranking
  * (comparando posição antes/depois dos jogos de ontem), o jogo com menos
  * acertos, e quem mais acertou (contagem de palpites corretos). Abre o
- * WhatsApp (wa.me) com o texto pré-preenchido.
+ * WhatsApp (api.whatsapp.com) com o texto pré-preenchido.
  */
 window.__compartilharResumoOntem = async () => {
   if(!isAdmin()){ showToast('Sem permissão.'); return; }
@@ -3271,7 +3795,7 @@ window.__compartilharResumoOntem = async () => {
       linhas.push('');
       linhas.push('Confira o ranking completo:');
       linhas.push('https://bolao-copa-2026-71761.web.app');
-      const url = `https://wa.me/?text=${encodeURIComponent(linhas.join('\n'))}`;
+      const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(linhas.join('\n'))}`;
       if(win && !win.closed) win.location.href = url; else window.open(url,'_blank');
       return;
     }
@@ -3401,7 +3925,7 @@ window.__compartilharResumoOntem = async () => {
     linhas.push('Confira o ranking completo:');
     linhas.push('https://bolao-copa-2026-71761.web.app');
 
-    const url = `https://wa.me/?text=${encodeURIComponent(linhas.join('\n'))}`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(linhas.join('\n'))}`;
     if(win && !win.closed) win.location.href = url; else window.open(url,'_blank');
   } catch(e){
     if(win && !win.closed) win.close();
